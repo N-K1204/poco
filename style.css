@@ -17,6 +17,8 @@
   --btn-primary-text: #0d0e11;
   --btn-secondary-bg: #2a2b32;
   --btn-secondary-text: #ffffff;
+  --btn-danger-bg: #e54b4b;
+  --btn-danger-text: #ffffff;
 
   --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
   --r-xl: 18px;
@@ -299,6 +301,37 @@ body {
   margin-top: 2px;
 }
 
+.header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.btn-reset {
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.btn-reset svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-secondary);
+}
+
+.btn-reset:active {
+  border-color: var(--border-focus);
+  color: #ffffff;
+}
+
 /* Confirmation Modal Design */
 .confirm-container {
   display: flex;
@@ -498,6 +531,11 @@ textarea:focus {
 .btn-secondary:active {
   background: var(--bg-card-hover);
   transform: scale(0.98);
+}
+
+.btn-danger {
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
 }
 
 .btn-close-text {

@@ -417,6 +417,55 @@ textarea:focus {
   gap: 16px;
 }
 
+/* モーダルの重なり順（重ねて表示できるように調整） */
+.overlay {
+  z-index: 100;
+}
+
+.overlay.overlay-top {
+  z-index: 110; /* しりとりモーダルのさらに上に表示 */
+}
+
+/* しりとりヘッダーレイアウト */
+.shiritori-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 右上の控えめなリセットボタン */
+.btn-reset-icon {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-reset-icon svg {
+  width: 13px;
+  height: 13px;
+  stroke: var(--text-muted);
+}
+
+.btn-reset-icon:active {
+  background: rgba(229, 75, 75, 0.15);
+  border-color: var(--btn-danger-bg);
+  color: var(--btn-danger-bg);
+}
+
+.btn-reset-icon:active svg {
+  stroke: var(--btn-danger-bg);
+}
+
 .shiritori-display {
   background: var(--bg-main);
   border: 1px solid var(--border-subtle);

@@ -183,16 +183,15 @@ async function sendMemoToDiscord() {
 // Firebase リアルタイムしりとり
 // ==========================================
 
-// ↓ここを自分のFirebaseキー情報に書き換えてください
 const firebaseConfig = {
-  apiKey: "AIzaSyB150ycs-Kea3XpbLJp-woQoigB3dfQKlg",
-  authDomain: "poco-app-a97ba.firebaseapp.com",
-  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app", // ※Realtime Database作成後に確定します
-  projectId: "poco-app-a97ba",
-  storageBucket: "poco-app-a97ba.firebasestorage.app",
-  messagingSenderId: "725824798305",
-  appId: "1:725824798305:web:cd6192c353dbac36baf420",
-  measurementId: "G-8ZPPCMDTQN"
+  apiKey: "AIzaSyB150ycs-Kea3XpbLJp-woQoigB3dfQKlg",
+  authDomain: "poco-app-a97ba.firebaseapp.com",
+  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app", // ※Realtime Database作成後に確定します
+  projectId: "poco-app-a97ba",
+  storageBucket: "poco-app-a97ba.firebasestorage.app",
+  messagingSenderId: "725824798305",
+  appId: "1:725824798305:web:cd6192c353dbac36baf420",
+  measurementId: "G-8ZPPCMDTQN"
 };
 
 if (!firebase.apps.length) {
@@ -210,8 +209,9 @@ function closeShiritoriModal() {
   document.getElementById('shiritori-overlay').classList.remove('active');
 }
 
+// しりとり更新検知（古い順に下に積み重ね）
 function listenShiritoriUpdates() {
-  shiritoriRef.limitToLast(10).on('value', (snapshot) => {
+  shiritoriRef.limitToLast(50).on('value', (snapshot) => {
     const data = snapshot.val();
     const historyContainer = document.getElementById('shiritori-history');
     const lastWordEl = document.getElementById('last-word');
@@ -232,37 +232,69 @@ function listenShiritoriUpdates() {
     const lastChar = cleanWord.slice(-1);
     nextCharEl.innerText = lastChar === 'ー' ? cleanWord.slice(-2, -1) : lastChar;
 
+    // 上から下（古い順）へ表示
     historyContainer.innerHTML = wordsList.map(item => `
       <div class="history-item">
         <span class="word">${item.word}</span>
         <span class="time">${item.time}</span>
       </div>
-    `).reverse().join('');
+    `).join('');
+
+    // 最下部へスクロール
+    historyContainer.scrollTop = historyContainer.scrollHeight;
   });
 }
 
+// しりとり単語送信（重複チェック機能付き）
 function sendShiritoriWord() {
   const inputEl = document.getElementById('shiritori-input');
   const word = inputEl.value.trim();
 
   if (!word) return;
 
-  if (word.endsWith('ん')) {
-    showToast('「ん」がつきました！リセットします');
-    shiritoriRef.remove();
+  shiritoriRef.once('value', (snapshot) => {
+    const data = snapshot.val();
+
+    if (data) {
+      const existingWords = Object.values(data).map(item => item.word);
+      if (existingWords.includes(word)) {
+        showToast(`「${word}」はすでに使われています！`);
+        return;
+      }
+    }
+
+    if (word.endsWith('ん')) {
+      showToast('「ん」がつきました！リセットします');
+      shiritoriRef.remove();
+      inputEl.value = '';
+      return;
+    }
+
+    const now = new Date();
+    const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    shiritoriRef.push({
+      word: word,
+      time: timeStr
+    });
+
     inputEl.value = '';
-    return;
-  }
-
-  const now = new Date();
-  const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-  shiritoriRef.push({
-    word: word,
-    time: timeStr
   });
+}
 
-  inputEl.value = '';
+// しりとりリセット確認モーダル制御
+function openShiritoriResetConfirm() {
+  document.getElementById('shiritori-reset-overlay').classList.add('active');
+}
+
+function closeShiritoriResetConfirm() {
+  document.getElementById('shiritori-reset-overlay').classList.remove('active');
+}
+
+function executeShiritoriReset() {
+  shiritoriRef.remove();
+  closeShiritoriResetConfirm();
+  showToast('しりとりをリセットしました');
 }
 
 // Toast 表示制御

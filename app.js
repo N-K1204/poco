@@ -297,6 +297,36 @@ function executeShiritoriReset() {
   showToast('しりとりをリセットしました');
 }
 
+// しりとりモーダル制御
+function openShiritoriModal() {
+  document.getElementById('shiritori-overlay').classList.add('active');
+  listenShiritoriUpdates();
+}
+
+function closeShiritoriModal() {
+  document.getElementById('shiritori-overlay').classList.remove('active');
+}
+
+// リセット確認モーダル制御
+function openShiritoriResetConfirm() {
+  document.getElementById('shiritori-reset-overlay').classList.add('active');
+}
+
+function closeShiritoriResetConfirm() {
+  document.getElementById('shiritori-reset-overlay').classList.remove('active');
+}
+
+// リセット実行処理
+function executeShiritoriReset() {
+  shiritoriRef.remove().then(() => {
+    closeShiritoriResetConfirm();
+    showToast('しりとりをリセットしました');
+  }).catch((error) => {
+    console.error('Reset error:', error);
+    showToast('リセットに失敗しました');
+  });
+}
+
 // Toast 表示制御
 let toastTimer = null;
 function showToast(msg) {

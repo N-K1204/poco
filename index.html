@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Poco Pro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- STEP 1: メインメニュー -->
+    <div id="step-1" class="step-panel active">
+      <header class="app-header">
+        <h1 class="brand-logo">Poco</h1>
+        <p class="brand-sub">選択して相手に伝える</p>
+      </header>
+
+      <main class="status-grid">
+        <button class="status-btn" onclick="selectStatus('stuck')">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">今の状態を選ぶ</span>
+            <span class="sub">自分の状況や気分を相手に送る</span>
+          </div>
+        </button>
+
+        <button class="status-btn" onclick="selectStatus('call')">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">通話の希望を選ぶ</span>
+            <span class="sub">電話できるタイミングを伝える</span>
+          </div>
+        </button>
+
+        <button class="status-btn" onclick="selectStatus('quick')">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">クイック応答</span>
+            <span class="sub">はい / いいえ など短く返す</span>
+          </div>
+        </button>
+
+        <button class="status-btn" onclick="selectStatus('shiritori')">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">リアルタイムしりとり</span>
+            <span class="sub">お互いの画面で同時にしりとり</span>
+          </div>
+        </button>
+
+        <button class="status-btn" onclick="selectStatus('memo')">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">通話まえメモ</span>
+            <span class="sub">話したい項目をまとめて送る</span>
+          </div>
+        </button>
+      </main>
+    </div>
+
+    <!-- STEP 2: ボタン一覧パネル -->
+    <div id="step-2" class="step-panel">
+      <header class="header-nav">
+        <button id="reset-step-btn" class="btn-back" onclick="resetToStep1()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          戻る
+        </button>
+      </header>
+
+      <section id="panel-stuck" class="sub-panel">
+        <div class="section-header">
+          <h2 class="section-title">今の状態を選ぶ</h2>
+          <p class="section-desc">当てはまるものを1つタップしてください</p>
+        </div>
+        <div id="status-grid" class="cards-grid"></div>
+      </section>
+
+      <section id="panel-call" class="sub-panel">
+        <div class="section-header">
+          <h2 class="section-title">通話の希望を選ぶ</h2>
+          <p class="section-desc">当てはまるものを1つタップしてください</p>
+        </div>
+        <div id="call-grid" class="cards-grid"></div>
+      </section>
+
+      <section id="panel-quick" class="sub-panel">
+        <div class="section-header">
+          <h2 class="section-title">クイック応答</h2>
+          <p class="section-desc">当てはまるものを1つタップしてください</p>
+        </div>
+        <div id="quick-grid" class="quick-grid"></div>
+      </section>
+    </div>
+
+  </div>
+
+  <!-- ボタン送信確認モーダル -->
+  <div id="confirm-overlay" class="overlay" onclick="handleOverlayClick(event, 'confirm-overlay')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="confirm-container">
+        <div class="sheet-header">
+          <h2>送信の確認</h2>
+          <p>以下の内容を相手に送信しますか？</p>
+        </div>
+        <div class="confirm-card">
+          <div id="confirm-category" class="confirm-category">カテゴリ名</div>
+          <div id="confirm-label" class="confirm-label">選択したボタン名</div>
+        </div>
+        <div class="editor-actions">
+          <button class="btn btn-secondary" onclick="closeConfirmModal()">キャンセル</button>
+          <button class="btn btn-primary" onclick="sendSelectedButtonToDiscord()">Discordへ送信</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通話まえメモ モーダル -->
+  <div id="memo-overlay" class="overlay" onclick="handleOverlayClick(event, 'memo-overlay')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="memo-container">
+        <div class="sheet-header">
+          <h2>通話まえメモ</h2>
+          <p>今日あったことや話したいことを書き留めます</p>
+        </div>
+        <div class="memo-form">
+          <div class="input-group">
+            <label for="memo-today">今日あったこと</label>
+            <textarea id="memo-today" placeholder="行った場所、出来事など"></textarea>
+          </div>
+          <div class="input-group">
+            <label for="memo-talk">話したいこと</label>
+            <textarea id="memo-talk" placeholder="電話で伝えたいテーマ"></textarea>
+          </div>
+          <div class="input-group">
+            <label for="memo-trouble">困っていること・悩み</label>
+            <textarea id="memo-trouble" placeholder="気になっていること、不安"></textarea>
+          </div>
+          <div class="editor-actions">
+            <button class="btn btn-primary" onclick="sendMemoToDiscord()">Discordへ送信</button>
+          </div>
+          <button class="btn-close-text" onclick="closeMemoModal()">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- リアルタイムしりとり モーダル -->
+  <div id="shiritori-overlay" class="overlay" onclick="handleOverlayClick(event, 'shiritori-overlay')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="shiritori-container">
+        <div class="sheet-header">
+          <h2>リアルタイムしりとり</h2>
+          <p>お互いの画面に即座に反映されます</p>
+        </div>
+        <div class="shiritori-display">
+          <div class="last-word-label">つぎの文字</div>
+          <div id="next-char" class="next-char">ー</div>
+          <div id="last-word" class="last-word">（まだ単語がありません）</div>
+        </div>
+        <div id="shiritori-history" class="shiritori-history"></div>
+        <div class="shiritori-input-group">
+          <input type="text" id="shiritori-input" placeholder="ひらがなで入力" autocomplete="off" />
+          <button class="btn btn-primary" onclick="sendShiritoriWord()">送信</button>
+        </div>
+        <button class="btn-close-text" onclick="closeShiritoriModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 通知 -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Firebase SDK (v9/v10 Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

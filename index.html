@@ -162,9 +162,15 @@
     <div class="sheet">
       <div class="sheet-handle"></div>
       <div class="shiritori-container">
-        <div class="sheet-header">
-          <h2>リアルタイムしりとり</h2>
-          <p>お互いの画面に即座に反映されます</p>
+        <div class="sheet-header header-with-action">
+          <div>
+            <h2>リアルタイムしりとり</h2>
+            <p>お互いの画面に即座に反映されます</p>
+          </div>
+          <button class="btn-reset" onclick="openShiritoriResetConfirm()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            リセット
+          </button>
         </div>
         <div class="shiritori-display">
           <div class="last-word-label">つぎの文字</div>
@@ -177,6 +183,23 @@
           <button class="btn btn-primary" onclick="sendShiritoriWord()">送信</button>
         </div>
         <button class="btn-close-text" onclick="closeShiritoriModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- しりとりリセット確認 モーダル -->
+  <div id="shiritori-reset-overlay" class="overlay" onclick="handleOverlayClick(event, 'shiritori-reset-overlay')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="confirm-container">
+        <div class="sheet-header">
+          <h2>しりとりのリセット</h2>
+          <p>これまでの単語履歴をすべて消去しますか？</p>
+        </div>
+        <div class="editor-actions">
+          <button class="btn btn-secondary" onclick="closeShiritoriResetConfirm()">キャンセル</button>
+          <button class="btn btn-primary btn-danger" onclick="executeShiritoriReset()">リセットする</button>
+        </div>
       </div>
     </div>
   </div>

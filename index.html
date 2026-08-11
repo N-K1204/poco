@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Poco</title>
+  <title>Poco Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,17 +16,39 @@
     <div id="step-1" class="step-panel active">
       <header class="app-header">
         <h1 class="brand-logo">Poco</h1>
-        <p class="brand-sub">選択して相手に伝える</p>
+        <p class="brand-sub">コミュニケーションアシスト</p>
       </header>
 
       <main class="status-grid">
+        <!-- 対話セッション (管理者) -->
+        <button class="status-btn hero-btn" onclick="openHearingModal('admin')">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">対話セッション（管理者）</span>
+            <span class="sub">リアルタイム質問の作成と進行</span>
+          </div>
+        </button>
+
+        <!-- ガイドセッション (小山くん) -->
+        <button class="status-btn hero-btn" onclick="openHearingModal('koyama')">
+          <div class="icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">ガイドセッション</span>
+            <span class="sub">質問に答えて状況を共有</span>
+          </div>
+        </button>
+
         <button class="status-btn" onclick="selectStatus('stuck')">
           <div class="icon-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           </div>
           <div class="btn-text">
-            <span class="title">今の状態を選ぶ</span>
-            <span class="sub">自分の状況や気分を相手に送る</span>
+            <span class="title">現在のコンディション</span>
+            <span class="sub">状態や感覚を選択して送信</span>
           </div>
         </button>
 
@@ -32,8 +57,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
           <div class="btn-text">
-            <span class="title">通話の希望を選ぶ</span>
-            <span class="sub">電話できるタイミングを伝える</span>
+            <span class="title">通話リクエスト</span>
+            <span class="sub">通話可否やタイミングの提示</span>
           </div>
         </button>
 
@@ -42,8 +67,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </div>
           <div class="btn-text">
-            <span class="title">クイック応答</span>
-            <span class="sub">はい / いいえ など短く返す</span>
+            <span class="title">クイックシグナル</span>
+            <span class="sub">ワンタップで迅速に意思表示</span>
           </div>
         </button>
 
@@ -53,7 +78,7 @@
           </div>
           <div class="btn-text">
             <span class="title">リアルタイムしりとり</span>
-            <span class="sub">お互いの画面で同時にしりとり</span>
+            <span class="sub">双方向テキストコミュニケーション</span>
           </div>
         </button>
 
@@ -62,8 +87,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </div>
           <div class="btn-text">
-            <span class="title">通話まえメモ</span>
-            <span class="sub">話したい項目をまとめて送る</span>
+            <span class="title">プレ通話メモ</span>
+            <span class="sub">アジェンダや要点を整理</span>
           </div>
         </button>
       </main>
@@ -80,24 +105,24 @@
 
       <section id="panel-stuck" class="sub-panel">
         <div class="section-header">
-          <h2 class="section-title">今の状態を選ぶ</h2>
-          <p class="section-desc">当てはまるものを1つタップしてください</p>
+          <h2 class="section-title">現在のコンディション</h2>
+          <p class="section-desc">当てはまる項目を選択してください</p>
         </div>
         <div id="status-grid" class="cards-grid"></div>
       </section>
 
       <section id="panel-call" class="sub-panel">
         <div class="section-header">
-          <h2 class="section-title">通話の希望を選ぶ</h2>
-          <p class="section-desc">当てはまるものを1つタップしてください</p>
+          <h2 class="section-title">通話リクエスト</h2>
+          <p class="section-desc">希望するタイミングを選択してください</p>
         </div>
         <div id="call-grid" class="cards-grid"></div>
       </section>
 
       <section id="panel-quick" class="sub-panel">
         <div class="section-header">
-          <h2 class="section-title">クイック応答</h2>
-          <p class="section-desc">当てはまるものを1つタップしてください</p>
+          <h2 class="section-title">クイックシグナル</h2>
+          <p class="section-desc">迅速な応答メッセージを選択してください</p>
         </div>
         <div id="quick-grid" class="quick-grid"></div>
       </section>
@@ -105,14 +130,92 @@
 
   </div>
 
-  <!-- ボタン送信確認モーダル -->
+  <!-- 対話セッション モーダル -->
+  <div id="hearing-overlay" class="overlay soft-font-root" onclick="handleOverlayClick(event, 'hearing-overlay')">
+    <div class="sheet hearing-sheet">
+      <div class="sheet-handle"></div>
+      
+      <div class="hearing-timer-box">
+        <span class="timer-label">セッション終了まで</span>
+        <div class="timer-value">
+          <span id="timer-text">あと 3:00</span>
+          <div id="timer-hourglass" class="hourglass-icon hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 管理者用画面 -->
+      <div id="hearing-admin-box" class="hearing-body hidden">
+        <div class="hearing-q-tag">ADMIN CONTROL</div>
+        <h2 class="hearing-q-title">質問の配信と時間設定</h2>
+        <p class="hearing-q-sub">入力した質問がリアルタイムで相手の端末に配信されます</p>
+
+        <div class="input-group">
+          <label for="admin-timer-select">制限時間の設定</label>
+          <select id="admin-timer-select" class="select-box">
+            <option value="60">1 分</option>
+            <option value="120">2 分</option>
+            <option value="180" selected>3 分（標準）</option>
+            <option value="300">5 分</option>
+            <option value="600">10 分</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="admin-question-input">質問メッセージ</label>
+          <input type="text" id="admin-question-input" placeholder="例：いつのこと？ / どこでのこと？" />
+        </div>
+
+        <div class="editor-actions">
+          <button class="btn btn-primary" onclick="sendAdminQuestion()">質問を配信</button>
+        </div>
+
+        <div class="hearing-history-log">
+          <div class="log-title">受信した最新レスポンス:</div>
+          <div id="admin-last-reply" class="log-content">（応答待機中...）</div>
+        </div>
+
+        <button class="btn btn-secondary btn-danger-text" onclick="finishHearingProcess()">セッションを終了する</button>
+      </div>
+
+      <!-- ガイド（小山くん）用画面 -->
+      <div id="hearing-koyama-box" class="hearing-body hidden">
+        <div class="hearing-q-tag">QUESTION</div>
+        <h2 class="hearing-q-title" id="koyama-q-display">（質問を待っています...）</h2>
+        <p class="hearing-q-sub">単語で入力するか、「？」ボタンをタップしてください</p>
+
+        <div class="koyama-answer-container">
+          <div class="input-with-question">
+            <input type="text" id="koyama-answer-input" placeholder="単語で入力..." autocomplete="off" />
+            <button class="btn-question-mark" onclick="submitKoyamaQuestionMark()" title="意味がわからない・答えにくい">?</button>
+          </div>
+          <button class="btn btn-primary" onclick="submitKoyamaAnswer()">送信する</button>
+        </div>
+      </div>
+
+      <!-- 終了サンクスページ -->
+      <div id="hearing-finish-box" class="hearing-finish-box hidden">
+        <div class="finish-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h2 class="finish-title">おつかれさま、ありがとう。</h2>
+        <p class="finish-sub">きもちを教えてくれてありがとう。<br>きょうのおはなしは、もうおしまいだよ。</p>
+        <button class="btn btn-primary" onclick="closeHearingModal()">画面を閉じる</button>
+      </div>
+
+      <button class="btn-close-text" onclick="closeHearingModal()">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 送信確認モーダル -->
   <div id="confirm-overlay" class="overlay" onclick="handleOverlayClick(event, 'confirm-overlay')">
     <div class="sheet">
       <div class="sheet-handle"></div>
       <div class="confirm-container">
         <div class="sheet-header">
           <h2>送信の確認</h2>
-          <p>以下の内容を相手に送信しますか？</p>
+          <p>以下の内容で通知を送信しますか？</p>
         </div>
         <div class="confirm-card">
           <div id="confirm-category" class="confirm-category">カテゴリ名</div>
@@ -126,27 +229,27 @@
     </div>
   </div>
 
-  <!-- 通話まえメモ モーダル -->
+  <!-- プレ通話メモ モーダル -->
   <div id="memo-overlay" class="overlay" onclick="handleOverlayClick(event, 'memo-overlay')">
     <div class="sheet">
       <div class="sheet-handle"></div>
       <div class="memo-container">
         <div class="sheet-header">
-          <h2>通話まえメモ</h2>
-          <p>今日あったことや話したいことを書き留めます</p>
+          <h2>プレ通話メモ</h2>
+          <p>通話前に共有したいテーマを整理します</p>
         </div>
         <div class="memo-form">
           <div class="input-group">
-            <label for="memo-today">今日あったこと</label>
-            <textarea id="memo-today" placeholder="行った場所、出来事など"></textarea>
+            <label for="memo-today">本日のトピックス</label>
+            <textarea id="memo-today" placeholder="出来事や現状"></textarea>
           </div>
           <div class="input-group">
-            <label for="memo-talk">話したいこと</label>
-            <textarea id="memo-talk" placeholder="電話で伝えたいテーマ"></textarea>
+            <label for="memo-talk">相談・アジェンダ</label>
+            <textarea id="memo-talk" placeholder="話し合いたいテーマ"></textarea>
           </div>
           <div class="input-group">
-            <label for="memo-trouble">困っていること・悩み</label>
-            <textarea id="memo-trouble" placeholder="気になっていること、不安"></textarea>
+            <label for="memo-trouble">困りごと・懸念点</label>
+            <textarea id="memo-trouble" placeholder="不安や気になること"></textarea>
           </div>
           <div class="editor-actions">
             <button class="btn btn-primary" onclick="sendMemoToDiscord()">Discordへ送信</button>
@@ -157,28 +260,25 @@
     </div>
   </div>
 
-<!-- リアルタイムしりとり モーダル -->
+  <!-- リアルタイムしりとり モーダル -->
   <div id="shiritori-overlay" class="overlay" onclick="handleOverlayClick(event, 'shiritori-overlay')">
     <div class="sheet">
       <div class="sheet-handle"></div>
       <div class="shiritori-container">
-        
-        <!-- ヘッダー：タイトルと右上リセットボタン -->
         <div class="sheet-header shiritori-header">
           <div>
             <h2>リアルタイムしりとり</h2>
-            <p>お互いの画面に即座に反映されます</p>
+            <p>同期テキストコミュニケーション</p>
           </div>
           <button class="btn-reset-icon" onclick="openShiritoriResetConfirm()" title="リセット">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             <span>リセット</span>
           </button>
         </div>
-
         <div class="shiritori-display">
-          <div class="last-word-label">つぎの文字</div>
+          <div class="last-word-label">次のターゲット文字</div>
           <div id="next-char" class="next-char">ー</div>
-          <div id="last-word" class="last-word">（まだ単語がありません）</div>
+          <div id="last-word" class="last-word">（履歴なし）</div>
         </div>
         <div id="shiritori-history" class="shiritori-history"></div>
         <div class="shiritori-input-group">
@@ -190,35 +290,18 @@
     </div>
   </div>
 
-  <!-- しりとりリセット確認 モーダル（z-indexを前面に移動） -->
+  <!-- しりとりリセット確認 モーダル -->
   <div id="shiritori-reset-overlay" class="overlay overlay-top" onclick="handleOverlayClick(event, 'shiritori-reset-overlay')">
     <div class="sheet">
       <div class="sheet-handle"></div>
       <div class="confirm-container">
         <div class="sheet-header">
-          <h2>しりとりのリセット</h2>
-          <p>これまでの単語履歴をすべて消去しますか？</p>
+          <h2>履歴のリセット</h2>
+          <p>これまでのしりとりログを消去しますか？</p>
         </div>
         <div class="editor-actions">
           <button class="btn btn-secondary" onclick="closeShiritoriResetConfirm()">キャンセル</button>
-          <button class="btn btn-primary btn-danger" onclick="executeShiritoriReset()">リセットする</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- しりとりリセット確認 モーダル -->
-  <div id="shiritori-reset-overlay" class="overlay" onclick="handleOverlayClick(event, 'shiritori-reset-overlay')">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="confirm-container">
-        <div class="sheet-header">
-          <h2>しりとりのリセット</h2>
-          <p>これまでの単語履歴をすべて消去しますか？</p>
-        </div>
-        <div class="editor-actions">
-          <button class="btn btn-secondary" onclick="closeShiritoriResetConfirm()">キャンセル</button>
-          <button class="btn btn-primary btn-danger" onclick="executeShiritoriReset()">リセットする</button>
+          <button class="btn btn-primary btn-danger" onclick="executeShiritoriReset()">リセット実行</button>
         </div>
       </div>
     </div>
@@ -227,7 +310,7 @@
   <!-- Toast 通知 -->
   <div id="toast" class="toast"></div>
 
-  <!-- Firebase SDK (v9/v10 Compat) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 

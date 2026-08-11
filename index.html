@@ -23,7 +23,7 @@
         <!-- 対話セッション (管理者) -->
         <button class="status-btn hero-btn" onclick="openHearingModal('admin')">
           <div class="icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/></svg>
           </div>
           <div class="btn-text">
             <span class="title">対話セッション（管理者）</span>
@@ -34,7 +34,7 @@
         <!-- ガイドセッション (小山くん) -->
         <button class="status-btn hero-btn" onclick="openHearingModal('koyama')">
           <div class="icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
           <div class="btn-text">
             <span class="title">ガイドセッション</span>
@@ -42,9 +42,20 @@
           </div>
         </button>
 
+        <!-- 3D タクティカルバトル (鬼ごっこ・かくれんぼ) -->
+        <button class="status-btn hero-btn" onclick="selectStatus('game3d')">
+          <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">タクティカル 3D</span>
+            <span class="sub">FPS / TPS 視点対応・おにごっこ</span>
+          </div>
+        </button>
+
         <button class="status-btn" onclick="selectStatus('stuck')">
           <div class="icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           </div>
           <div class="btn-text">
             <span class="title">現在のコンディション</span>
@@ -54,7 +65,7 @@
 
         <button class="status-btn" onclick="selectStatus('call')">
           <div class="icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
           <div class="btn-text">
             <span class="title">通話リクエスト</span>
@@ -64,7 +75,7 @@
 
         <button class="status-btn" onclick="selectStatus('quick')">
           <div class="icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </div>
           <div class="btn-text">
             <span class="title">クイックシグナル</span>
@@ -74,7 +85,7 @@
 
         <button class="status-btn" onclick="selectStatus('shiritori')">
           <div class="icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </div>
           <div class="btn-text">
             <span class="title">リアルタイムしりとり</span>
@@ -84,7 +95,7 @@
 
         <button class="status-btn" onclick="selectStatus('memo')">
           <div class="icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </div>
           <div class="btn-text">
             <span class="title">プレ通話メモ</span>
@@ -98,7 +109,7 @@
     <div id="step-2" class="step-panel">
       <header class="header-nav">
         <button id="reset-step-btn" class="btn-back" onclick="resetToStep1()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           戻る
         </button>
       </header>
@@ -140,7 +151,7 @@
         <div class="timer-value">
           <span id="timer-text">あと 3:00</span>
           <div id="timer-hourglass" class="hourglass-icon hidden">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
           </div>
         </div>
       </div>
@@ -188,7 +199,7 @@
         <div class="koyama-answer-container">
           <div class="input-with-question">
             <input type="text" id="koyama-answer-input" placeholder="単語で入力..." autocomplete="off" />
-            <button class="btn-question-mark" onclick="submitKoyamaQuestionMark()" title="わからない・質問の意味が曖昧">?</button>
+            <button class="btn-question-mark" onclick="submitKoyamaQuestionMark()" title="意味がわからない・答えにくい">?</button>
           </div>
           <button class="btn btn-primary" onclick="submitKoyamaAnswer()">送信する</button>
         </div>
@@ -197,7 +208,7 @@
       <!-- 終了サンクスページ -->
       <div id="hearing-finish-box" class="hearing-finish-box hidden">
         <div class="finish-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <h2 class="finish-title">おつかれさま、ありがとう。</h2>
         <p class="finish-sub">きもちを教えてくれてありがとう。<br>きょうのおはなしは、もうおしまいだよ。</p>
@@ -205,6 +216,47 @@
       </div>
 
       <button class="btn-close-text" onclick="closeHearingModal()">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 全画面 3D タクティカルゲームビュー (FPS/TPS・壁当たり判定対応) -->
+  <div id="game3d-overlay" class="game3d-fullscreen-view">
+    <div id="canvas3d-container" class="canvas3d-fullscreen"></div>
+
+    <div class="game3d-ui-top">
+      <button class="btn-fullscreen-back" onclick="close3DGameModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+
+      <div class="mode-selector">
+        <button id="view-tps-btn" class="mode-btn active" onclick="setCameraViewMode('TPS')">TPS (三人称)</button>
+        <button id="view-fps-btn" class="mode-btn" onclick="setCameraViewMode('FPS')">FPS (一人称)</button>
+      </div>
+
+      <div id="game3d-status" class="game3d-status-pill">STANDBY</div>
+    </div>
+
+    <div class="task-bar-container">
+      <div class="task-bar-label">MISSION PROGRESS</div>
+      <div class="task-bar-bg">
+        <div id="task-bar-fill" class="task-bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="game3d-ui-bottom">
+      <div class="dpad-grid">
+        <div></div>
+        <button class="dpad-btn" ontouchstart="handle3DMove('up')" onmousedown="handle3DMove('up')" onmouseup="stop3DMove()" ontouchend="stop3DMove()">▲</button>
+        <div></div>
+        <button class="dpad-btn" ontouchstart="handle3DMove('left')" onmousedown="handle3DMove('left')" onmouseup="stop3DMove()" ontouchend="stop3DMove()">◀</button>
+        <button class="dpad-btn dash-btn" onclick="trigger3DDash()">DASH</button>
+        <button class="dpad-btn" ontouchstart="handle3DMove('right')" onmousedown="handle3DMove('right')" onmouseup="stop3DMove()" ontouchend="stop3DMove()">▶</button>
+        <div></div>
+        <button class="dpad-btn" ontouchstart="handle3DMove('down')" onmousedown="handle3DMove('down')" onmouseup="stop3DMove()" ontouchend="stop3DMove()">▼</button>
+        <div></div>
+      </div>
+
+      <button id="game3d-start-btn" class="btn-game-action" onclick="toggle3DGame()">START</button>
     </div>
   </div>
 
@@ -288,7 +340,7 @@
             <p>同期テキストコミュニケーション</p>
           </div>
           <button class="btn-reset-icon" onclick="openShiritoriResetConfirm()" title="リセット">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             <span>リセット</span>
           </button>
         </div>
@@ -327,9 +379,11 @@
   <!-- Toast 通知 -->
   <div id="toast" class="toast"></div>
 
+  <!-- Three.js Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
   <script src="data.js"></script>
   <script src="app.js"></script>

@@ -6,6 +6,7 @@ let selectedButtonItem = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   renderButtons();
+  init3DScene();
 });
 
 function selectStatus(statusType) {
@@ -15,6 +16,10 @@ function selectStatus(statusType) {
   }
   if (statusType === 'shiritori') {
     openShiritoriModal();
+    return;
+  }
+  if (statusType === 'game3d') {
+    open3DGameModal();
     return;
   }
 
@@ -292,7 +297,7 @@ function executeShiritoriReset() {
 }
 
 // ==========================================
-// 5W1H リアルタイムヒアリング (完全同期版)
+// 5W1H リアルタイム対話セッション
 // ==========================================
 
 let userRole = 'koyama';
@@ -322,20 +327,17 @@ function closeHearingModal() {
   document.getElementById('hearing-overlay').classList.remove('active');
 }
 
-// リアルタイム双方向同期リスナー
 function listenHearingSync() {
-  hearingStateRef.off(); // 既存リスナーの重複防止
+  hearingStateRef.off();
   hearingStateRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
 
-    // タイマー時間の同期
     if (data.remainingSeconds !== undefined) {
       hearingRemainingSeconds = data.remainingSeconds;
       updateTimerUI();
     }
 
-    // 終了状態の同期
     if (data.isFinished) {
       stopHearingTimer();
       document.getElementById('hearing-admin-box').classList.add('hidden');
@@ -353,7 +355,6 @@ function listenHearingSync() {
       }
     }
 
-    // 小山くん画面：質問の即時反映
     if (userRole === 'koyama') {
       const qDisplay = document.getElementById('koyama-q-display');
       if (qDisplay) {
@@ -361,7 +362,6 @@ function listenHearingSync() {
       }
     }
 
-    // 管理者画面：小山くんからの回答の即時反映
     if (userRole === 'admin') {
       const replyDisplay = document.getElementById('admin-last-reply');
       if (replyDisplay && data.lastAnswer) {
@@ -371,7 +371,6 @@ function listenHearingSync() {
   });
 }
 
-// 【管理者】質問をリアルタイム送信
 function sendAdminQuestion() {
   const qText = document.getElementById('admin-question-input').value.trim();
   if (!qText) return showToast('質問を入力してください');
@@ -390,11 +389,10 @@ function sendAdminQuestion() {
     timestamp: Date.now()
   });
 
-  showToast('質問を送信しました');
+  showToast('質問を配信しました');
   document.getElementById('admin-question-input').value = '';
 }
 
-// 【小山くん】回答の送信
 function submitKoyamaAnswer() {
   const ansText = document.getElementById('koyama-answer-input').value.trim();
   if (!ansText) return showToast('ことばを入力してね');
@@ -403,7 +401,6 @@ function submitKoyamaAnswer() {
   document.getElementById('koyama-answer-input').value = '';
 }
 
-// 【小山くん】「？」ボタン押下（確認ダイアログの表示）
 function submitKoyamaQuestionMark() {
   openKoyamaQuestionConfirm();
 }
@@ -515,8 +512,263 @@ async function sendHearingLogToDiscord(qKey, answer) {
   }
 }
 
-// Toast 表示制御
-let toastTimer = null;
+// ==========================================
+// 3D タクティカルバトル Engine (Three.js)
+// ==========================================
+
+let scene3D, camera3D, renderer3D, playerLight;
+let player3D, enemy3D;
+let walls3D = [], taskPoints3D = [];
+let game3DActive = false;
+let cameraViewMode = 'TPS';
+let moveDir = { x: 0, z: 0 };
+let taskProgress = 0;
+let wallBoundingBoxes = [];
+
+function open3DGameModal() {
+  document.getElementById('game3d-overlay').classList.add('active');
+  setTimeout(() => {
+    onWindowResize3D();
+    if (renderer3D && scene3D && camera3D) {
+      renderer3D.render(scene3D, camera3D);
+    }
+  }, 100);
+}
+
+function close3DGameModal() {
+  stop3DGame();
+  document.getElementById('game3d-overlay').classList.remove('active');
+}
+
+function setCameraViewMode(mode) {
+  cameraViewMode = mode;
+  document.getElementById('view-tps-btn').classList.toggle('active', mode === 'TPS');
+  document.getElementById('view-fps-btn').classList.toggle('active', mode === 'FPS');
+
+  if (game3DActive) {
+    showToast(`視点を「${mode === 'FPS' ? '一人称 (FPS)' : '三人称 (TPS)'}」に切り替えました`);
+  }
+}
+
+function init3DScene() {
+  const container = document.getElementById('canvas3d-container');
+  if (!container) return;
+
+  scene3D = new THREE.Scene();
+  scene3D.background = new THREE.Color(0x050507);
+  scene3D.fog = new THREE.FogExp2(0x050507, 0.04);
+
+  camera3D = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+  renderer3D = new THREE.WebGLRenderer({ antialias: true });
+  renderer3D.setSize(window.innerWidth, window.innerHeight);
+  renderer3D.shadowMap.enabled = true;
+  container.appendChild(renderer3D.domElement);
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+  scene3D.add(ambientLight);
+
+  playerLight = new THREE.SpotLight(0xffffff, 2.5);
+  playerLight.angle = Math.PI / 3;
+  playerLight.penumbra = 0.5;
+  playerLight.castShadow = true;
+  scene3D.add(playerLight);
+
+  // 床
+  const floorGeo = new THREE.PlaneGeometry(60, 60);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x121318, roughness: 0.8 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene3D.add(floor);
+
+  // ステージ構築（迷路壁）
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x22242c });
+  const wallLayout = [
+    { x: 0, z: -15, w: 30, h: 4, d: 1 },
+    { x: -15, z: 0, w: 1, h: 4, d: 30 },
+    { x: 15, z: 0, w: 1, h: 4, d: 30 },
+    { x: 0, z: 15, w: 30, h: 4, d: 1 },
+    { x: -5, z: -5, w: 10, h: 4, d: 1 },
+    { x: 5, z: 5, w: 10, h: 4, d: 1 },
+    { x: 0, z: 0, w: 1, h: 4, d: 8 },
+    { x: -8, z: 6, w: 1, h: 4, d: 10 },
+    { x: 8, z: -6, w: 1, h: 4, d: 10 }
+  ];
+
+  wallBoundingBoxes = [];
+  wallLayout.forEach(w => {
+    const geo = new THREE.BoxGeometry(w.w, w.h, w.d);
+    const wall = new THREE.Mesh(geo, wallMat);
+    wall.position.set(w.x, w.h / 2, w.z);
+    wall.castShadow = true;
+    wall.receiveShadow = true;
+    scene3D.add(wall);
+    walls3D.push(wall);
+
+    wallBoundingBoxes.push({
+      minX: w.x - w.w / 2 - 0.7,
+      maxX: w.x + w.w / 2 + 0.7,
+      minZ: w.z - w.d / 2 - 0.7,
+      maxZ: w.z + w.d / 2 + 0.7
+    });
+  });
+
+  // タスクポイント
+  const taskGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.2, 16);
+  const taskMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6 });
+  const taskPositions = [{ x: -10, z: -10 }, { x: 10, z: -10 }, { x: -10, z: 10 }, { x: 10, z: 10 }];
+
+  taskPositions.forEach(tp => {
+    const taskMesh = new THREE.Mesh(taskGeo, taskMat);
+    taskMesh.position.set(tp.x, 0.1, tp.z);
+    scene3D.add(taskMesh);
+    taskPoints3D.push(taskMesh);
+  });
+
+  // プレイヤー (白)
+  const playerGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.8, 16);
+  const playerMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  player3D = new THREE.Mesh(playerGeo, playerMat);
+  player3D.position.set(0, 0.9, 0);
+  player3D.castShadow = true;
+  scene3D.add(player3D);
+
+  // 鬼 (赤)
+  const enemyMat = new THREE.MeshStandardMaterial({ color: 0xe54b4b });
+  enemy3D = new THREE.Mesh(playerGeo, enemyMat);
+  enemy3D.position.set(12, 0.9, -12);
+  enemy3D.castShadow = true;
+  scene3D.add(enemy3D);
+
+  window.addEventListener('resize', onWindowResize3D);
+}
+
+function onWindowResize3D() {
+  if (!renderer3D || !camera3D) return;
+  camera3D.aspect = window.innerWidth / window.innerHeight;
+  camera3D.updateProjectionMatrix();
+  renderer3D.setSize(window.innerWidth, window.innerHeight);
+}
+
+function toggle3DGame() {
+  game3DActive = !game3DActive;
+  const btn = document.getElementById('game3d-start-btn');
+  const statusEl = document.getElementById('game3d-status');
+
+  if (game3DActive) {
+    btn.innerText = 'STOP';
+    statusEl.innerText = 'PLAYING';
+    taskProgress = 0;
+    updateTaskUI();
+    animate3D();
+  } else {
+    stop3DGame();
+  }
+}
+
+function stop3DGame() {
+  game3DActive = false;
+  const btn = document.getElementById('game3d-start-btn');
+  const statusEl = document.getElementById('game3d-status');
+
+  if (btn) btn.innerText = 'START';
+  if (statusEl) statusEl.innerText = 'STANDBY';
+}
+
+function handle3DMove(dir) {
+  if (!game3DActive) return;
+  const speed = 0.35;
+  if (dir === 'up') moveDir.z = -speed;
+  if (dir === 'down') moveDir.z = speed;
+  if (dir === 'left') moveDir.x = -speed;
+  if (dir === 'right') moveDir.x = speed;
+}
+
+function stop3DMove() {
+  moveDir = { x: 0, z: 0 };
+}
+
+function trigger3DDash() {
+  if (!game3DActive) return;
+  movePlayerWithCollision(moveDir.x * 8, moveDir.z * 8);
+}
+
+function movePlayerWithCollision(dx, dz) {
+  const nextX = player3D.position.x + dx;
+  const nextZ = player3D.position.z + dz;
+
+  let canMoveX = true;
+  let canMoveZ = true;
+
+  for (let box of wallBoundingBoxes) {
+    if (nextX > box.minX && nextX < box.maxX && player3D.position.z > box.minZ && player3D.position.z < box.maxZ) {
+      canMoveX = false;
+    }
+    if (player3D.position.x > box.minX && player3D.position.x < box.maxX && nextZ > box.minZ && nextZ < box.maxZ) {
+      canMoveZ = false;
+    }
+  }
+
+  if (canMoveX) player3D.position.x = nextX;
+  if (canMoveZ) player3D.position.z = nextZ;
+}
+
+function updateTaskUI() {
+  const fill = document.getElementById('task-bar-fill');
+  if (fill) fill.style.width = `${taskProgress}%`;
+}
+
+function animate3D() {
+  if (!game3DActive) return;
+
+  requestAnimationFrame(animate3D);
+
+  movePlayerWithCollision(moveDir.x, moveDir.z);
+
+  playerLight.position.set(player3D.position.x, 10, player3D.position.z + 2);
+  playerLight.target = player3D;
+
+  taskPoints3D.forEach(tp => {
+    const dist = Math.hypot(player3D.position.x - tp.position.x, player3D.position.z - tp.position.z);
+    if (dist < 1.5 && taskProgress < 100) {
+      taskProgress = Math.min(100, taskProgress + 0.4);
+      updateTaskUI();
+      if (taskProgress >= 100) {
+        showToast('ミッション完了！脱出成功！');
+        stop3DGame();
+      }
+    }
+  });
+
+  const dx = player3D.position.x - enemy3D.position.x;
+  const dz = player3D.position.z - enemy3D.position.z;
+  const dist = Math.hypot(dx, dz);
+
+  if (dist > 0.8) {
+    enemy3D.position.x += (dx / dist) * 0.11;
+    enemy3D.position.z += (dz / dist) * 0.11;
+  } else {
+    showToast('鬼に確保されました！');
+    stop3DGame();
+    return;
+  }
+
+  if (cameraViewMode === 'FPS') {
+    camera3D.position.set(player3D.position.x, 1.6, player3D.position.z);
+    const lookTargetX = player3D.position.x + (moveDir.x || (dx / dist));
+    const lookTargetZ = player3D.position.z + (moveDir.z || (dz / dist));
+    camera3D.lookAt(lookTargetX, 1.6, lookTargetZ);
+  } else {
+    camera3D.position.x = player3D.position.x;
+    camera3D.position.y = 16;
+    camera3D.position.z = player3D.position.z + 12;
+    camera3D.lookAt(player3D.position.x, 0, player3D.position.z);
+  }
+
+  renderer3D.render(scene3D, camera3D);
+}
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.innerText = msg;

@@ -1,6 +1,6 @@
 // Poco Pro - Controller Logic
 
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1532953246061035731/JngZ2PorycVIurpCJzFMOGSnsZ5dtdkJIohOEF4sGoOKZv4rP5fPEts-jYrHFihbc528";
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL_HERE";
 
 let selectedButtonItem = null;
 
@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderButtons();
 });
 
-// ステップ切り替え処理
 function selectStatus(statusType) {
   if (statusType === 'memo') {
     openMemoModal();
@@ -37,7 +36,6 @@ function resetToStep1() {
   step1.classList.add('active');
 }
 
-// レンダリング処理
 function renderButtons() {
   const statusContainer = document.getElementById('status-grid');
   if (statusContainer) {
@@ -70,7 +68,12 @@ function renderButtons() {
   }
 }
 
-// --- 確認モーダル制御 ---
+function handleOverlayClick(event, overlayId) {
+  if (event.target.id === overlayId) {
+    document.getElementById(overlayId).classList.remove('active');
+  }
+}
+
 function openConfirmModal(buttonId, dataSourceKey) {
   const list = POCO_DATA[dataSourceKey];
   selectedButtonItem = list.find(b => b.id === buttonId);
@@ -94,13 +97,6 @@ function closeMemoModal() {
   document.getElementById('memo-overlay').classList.remove('active');
 }
 
-function handleOverlayClick(event, overlayId) {
-  if (event.target.id === overlayId) {
-    document.getElementById(overlayId).classList.remove('active');
-  }
-}
-
-// --- Discord 送信機能 ---
 async function sendSelectedButtonToDiscord() {
   if (!selectedButtonItem) return;
 
@@ -180,24 +176,25 @@ async function sendMemoToDiscord() {
 }
 
 // ==========================================
-// Firebase リアルタイムしりとり
+// Firebase 設定
 // ==========================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB150ycs-Kea3XpbLJp-woQoigB3dfQKlg",
-  authDomain: "poco-app-a97ba.firebaseapp.com",
-  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app", // ※Realtime Database作成後に確定します
-  projectId: "poco-app-a97ba",
-  storageBucket: "poco-app-a97ba.firebasestorage.app",
-  messagingSenderId: "725824798305",
-  appId: "1:725824798305:web:cd6192c353dbac36baf420",
-  measurementId: "G-8ZPPCMDTQN"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appstamp.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
+
+// --- しりとり ---
 const shiritoriRef = db.ref('shiritori/words');
 
 function openShiritoriModal() {
@@ -209,7 +206,6 @@ function closeShiritoriModal() {
   document.getElementById('shiritori-overlay').classList.remove('active');
 }
 
-// しりとり更新検知（古い順に下に積み重ね）
 function listenShiritoriUpdates() {
   shiritoriRef.limitToLast(50).on('value', (snapshot) => {
     const data = snapshot.val();
@@ -232,7 +228,6 @@ function listenShiritoriUpdates() {
     const lastChar = cleanWord.slice(-1);
     nextCharEl.innerText = lastChar === 'ー' ? cleanWord.slice(-2, -1) : lastChar;
 
-    // 上から下（古い順）へ表示
     historyContainer.innerHTML = wordsList.map(item => `
       <div class="history-item">
         <span class="word">${item.word}</span>
@@ -240,12 +235,10 @@ function listenShiritoriUpdates() {
       </div>
     `).join('');
 
-    // 最下部へスクロール
     historyContainer.scrollTop = historyContainer.scrollHeight;
   });
 }
 
-// しりとり単語送信（重複チェック機能付き）
 function sendShiritoriWord() {
   const inputEl = document.getElementById('shiritori-input');
   const word = inputEl.value.trim();
@@ -282,7 +275,6 @@ function sendShiritoriWord() {
   });
 }
 
-// しりとりリセット確認モーダル制御
 function openShiritoriResetConfirm() {
   document.getElementById('shiritori-reset-overlay').classList.add('active');
 }
@@ -291,40 +283,200 @@ function closeShiritoriResetConfirm() {
   document.getElementById('shiritori-reset-overlay').classList.remove('active');
 }
 
-function executeShiritoriReset() {
-  shiritoriRef.remove();
-  closeShiritoriResetConfirm();
-  showToast('しりとりをリセットしました');
-}
-
-// しりとりモーダル制御
-function openShiritoriModal() {
-  document.getElementById('shiritori-overlay').classList.add('active');
-  listenShiritoriUpdates();
-}
-
-function closeShiritoriModal() {
-  document.getElementById('shiritori-overlay').classList.remove('active');
-}
-
-// リセット確認モーダル制御
-function openShiritoriResetConfirm() {
-  document.getElementById('shiritori-reset-overlay').classList.add('active');
-}
-
-function closeShiritoriResetConfirm() {
-  document.getElementById('shiritori-reset-overlay').classList.remove('active');
-}
-
-// リセット実行処理
 function executeShiritoriReset() {
   shiritoriRef.remove().then(() => {
     closeShiritoriResetConfirm();
     showToast('しりとりをリセットしました');
-  }).catch((error) => {
-    console.error('Reset error:', error);
-    showToast('リセットに失敗しました');
   });
+}
+
+// ==========================================
+// 5W1H リアルタイムヒアリング (時間設定機能付き)
+// ==========================================
+
+let userRole = 'koyama';
+let hearingTimerInterval = null;
+let hearingRemainingSeconds = 180;
+const hearingStateRef = db.ref('hearing/live_state');
+const hearingLogRef = db.ref('hearing/records');
+
+function openHearingModal(role) {
+  userRole = role;
+  document.getElementById('hearing-overlay').classList.add('active');
+  document.getElementById('hearing-finish-box').classList.add('hidden');
+
+  if (role === 'admin') {
+    document.getElementById('hearing-admin-box').classList.remove('hidden');
+    document.getElementById('hearing-koyama-box').classList.add('hidden');
+  } else {
+    document.getElementById('hearing-admin-box').classList.add('hidden');
+    document.getElementById('hearing-koyama-box').classList.remove('hidden');
+  }
+
+  listenHearingSync();
+}
+
+function closeHearingModal() {
+  stopHearingTimer();
+  document.getElementById('hearing-overlay').classList.remove('active');
+}
+
+function listenHearingSync() {
+  hearingStateRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    if (data.isFinished) {
+      stopHearingTimer();
+      document.getElementById('hearing-admin-box').classList.add('hidden');
+      document.getElementById('hearing-koyama-box').classList.add('hidden');
+      document.getElementById('hearing-finish-box').classList.remove('hidden');
+      return;
+    }
+
+    if (data.remainingSeconds !== undefined) {
+      hearingRemainingSeconds = data.remainingSeconds;
+      updateTimerUI();
+    }
+
+    if (data.currentQuestion && userRole === 'koyama') {
+      document.getElementById('koyama-q-display').innerText = data.currentQuestion;
+    }
+
+    if (data.lastAnswer && userRole === 'admin') {
+      document.getElementById('admin-last-reply').innerText = `${data.lastQuestion || '質問'} ➔ 「${data.lastAnswer}」`;
+    }
+  });
+}
+
+// 【管理者】質問＆設定した制限時間を送信
+function sendAdminQuestion() {
+  const qText = document.getElementById('admin-question-input').value.trim();
+  if (!qText) return showToast('質問を入力してください');
+
+  const selectedSeconds = parseInt(document.getElementById('admin-timer-select').value, 10) || 180;
+
+  // はじめて送信する際にドロップダウンで選択した時間でタイマー起動
+  if (!hearingTimerInterval) {
+    hearingRemainingSeconds = selectedSeconds;
+    startHearingTimer();
+  }
+
+  hearingStateRef.update({
+    currentQuestion: qText,
+    remainingSeconds: hearingRemainingSeconds,
+    isFinished: false
+  });
+
+  showToast('質問を小山くんに送信しました');
+  document.getElementById('admin-question-input').value = '';
+}
+
+// 【小山くん】回答の送信
+function submitKoyamaAnswer() {
+  const ansText = document.getElementById('koyama-answer-input').value.trim();
+  if (!ansText) return showToast('ことばを入力してね');
+
+  recordKoyamaResponse(ansText);
+  document.getElementById('koyama-answer-input').value = '';
+}
+
+// 【小山くん】「？」ボタン送信
+function submitKoyamaQuestionMark() {
+  recordKoyamaResponse('？（わからない・質問の言い換え希望）');
+}
+
+function recordKoyamaResponse(answerText) {
+  hearingStateRef.once('value', (snapshot) => {
+    const data = snapshot.val() || {};
+    const currentQ = data.currentQuestion || '質問';
+
+    hearingStateRef.update({
+      lastQuestion: currentQ,
+      lastAnswer: answerText
+    });
+
+    hearingLogRef.push({
+      question: currentQ,
+      answer: answerText,
+      timestamp: new Date().toISOString()
+    });
+
+    sendHearingLogToDiscord(currentQ, answerText);
+    showToast('こたえを送信しました');
+  });
+}
+
+function startHearingTimer() {
+  stopHearingTimer();
+  updateTimerUI();
+
+  hearingTimerInterval = setInterval(() => {
+    hearingRemainingSeconds--;
+    
+    if (userRole === 'admin') {
+      hearingStateRef.update({ remainingSeconds: hearingRemainingSeconds });
+    }
+
+    updateTimerUI();
+
+    if (hearingRemainingSeconds <= 0) {
+      finishHearingProcess();
+    }
+  }, 1000);
+}
+
+function stopHearingTimer() {
+  if (hearingTimerInterval) {
+    clearInterval(hearingTimerInterval);
+    hearingTimerInterval = null;
+  }
+}
+
+function updateTimerUI() {
+  const timerText = document.getElementById('timer-text');
+  const timerHourglass = document.getElementById('timer-hourglass');
+
+  const mins = Math.floor(hearingRemainingSeconds / 60);
+  const secs = hearingRemainingSeconds % 60;
+  const formattedSecs = String(secs).padStart(2, '0');
+
+  if (hearingRemainingSeconds > 10) {
+    timerText.style.display = 'inline';
+    timerText.innerText = `あと ${mins}:${formattedSecs}`;
+    timerHourglass.classList.add('hidden');
+  } else {
+    timerText.style.display = 'none';
+    timerHourglass.classList.remove('hidden');
+  }
+}
+
+function finishHearingProcess() {
+  stopHearingTimer();
+  hearingStateRef.update({ isFinished: true });
+}
+
+async function sendHearingLogToDiscord(qKey, answer) {
+  const discordMessage = {
+    embeds: [{
+      title: "ヒアリング記録",
+      color: 0x3b82f6,
+      fields: [
+        { name: qKey, value: answer, inline: true }
+      ],
+      timestamp: new Date().toISOString()
+    }]
+  };
+
+  try {
+    await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(discordMessage)
+    });
+  } catch (e) {
+    console.error('Discord Log Error:', e);
+  }
 }
 
 // Toast 表示制御

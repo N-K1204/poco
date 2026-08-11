@@ -1,4 +1,4 @@
-/* Poco Pro - Style Sheet */
+/* Poco Pro - CSS */
 
 :root {
   --bg-main: #0d0e11;
@@ -76,7 +76,7 @@ body {
   margin-top: 4px;
 }
 
-/* Step Panels */
+/* ステップ切り替えの非表示設定 */
 .step-panel {
   display: none !important;
   flex-direction: column;
@@ -171,21 +171,27 @@ body {
   transform: scale(0.985);
 }
 
+/* SVGアイコン固定サイズ定義 */
 .icon-box {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
+  max-width: 44px;
+  max-height: 44px;
   background: var(--bg-main);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-md);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .icon-box svg {
-  width: 24px;
-  height: 24px;
+  width: 24px !important;
+  height: 24px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
   stroke: var(--text-primary);
 }
 
@@ -235,8 +241,8 @@ body {
 }
 
 .card-item svg, .quick-btn svg {
-  width: 28px;
-  height: 28px;
+  width: 28px !important;
+  height: 28px !important;
   stroke: var(--text-primary);
 }
 
@@ -263,7 +269,6 @@ body {
   transition: opacity 0.3s var(--ease-in-out);
 }
 
-/* 確認モーダルの最前面化 */
 .overlay.overlay-top {
   z-index: 120 !important;
 }
@@ -498,8 +503,47 @@ select.select-box:focus, input:focus {
   line-height: 1.6;
 }
 
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--r-md);
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--border-subtle);
+}
+
 .btn-danger-text {
   color: var(--btn-danger-bg) !important;
+}
+
+.btn-close-text {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
+  align-self: center;
 }
 
 .hidden {

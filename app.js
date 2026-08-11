@@ -193,14 +193,14 @@ async function sendMemoToDiscord() {
 // ==========================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB15Oycs-Kea3XpblJp-woQoigB3dfQKlg",
-  authDomain: "poco-app-a97ba.firebaseapp.com",
-  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "poco-app-a97ba",
-  storageBucket: "poco-app-a97ba.firebasestorage.app",
-  messagingSenderId: "725824798305",
-  appId: "1:725824798305:web:cd6192c353dbac36baf420",
-  measurementId: "G-8ZPPCMDTQN"
+  apiKey: "AIzaSyB15Oycs-Kea3XpblJp-woQoigB3dfQKlg",
+  authDomain: "poco-app-a97ba.firebaseapp.com",
+  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "poco-app-a97ba",
+  storageBucket: "poco-app-a97ba.firebasestorage.app",
+  messagingSenderId: "725824798305",
+  appId: "1:725824798305:web:cd6192c353dbac36baf420",
+  measurementId: "G-8ZPPCMDTQN"
 };
 
 let db = null;
@@ -317,7 +317,7 @@ function executeShiritoriReset() {
 }
 
 // ==========================================
-// 5W1H リアルタイム対話セッション
+// 5W1H リアルタイム対話セッション (タイマー・初期化完全改修)
 // ==========================================
 
 let userRole = 'koyama';
@@ -340,6 +340,8 @@ function openHearingModal(role) {
     document.getElementById('hearing-koyama-box').classList.remove('hidden');
   }
 
+  // 画面を開いた時点でカウントダウンを開始
+  startHearingTimer();
   listenHearingSync();
 }
 
@@ -358,7 +360,7 @@ function listenHearingSync() {
 
     if (!data) return;
 
-    if (data.remainingSeconds !== undefined) {
+    if (data.remainingSeconds !== undefined && userRole === 'koyama') {
       hearingRemainingSeconds = data.remainingSeconds;
       updateTimerUI();
     }
@@ -405,10 +407,8 @@ function sendAdminQuestion() {
 
   const selectedSeconds = parseInt(document.getElementById('admin-timer-select').value, 10) || 180;
 
-  if (!hearingTimerInterval) {
-    hearingRemainingSeconds = selectedSeconds;
-    startHearingTimer();
-  }
+  hearingRemainingSeconds = selectedSeconds;
+  startHearingTimer();
 
   if (db) {
     db.ref('hearing/live_state').update({
@@ -449,7 +449,10 @@ function executeKoyamaQuestionSubmit() {
 }
 
 function recordKoyamaResponse(answerText) {
-  if (!db) return showToast('回答を受け付けました');
+  if (!db) {
+    showToast('回答を送信しました');
+    return;
+  }
 
   const hearingStateRef = db.ref('hearing/live_state');
   const hearingLogRef = db.ref('hearing/records');
@@ -475,6 +478,7 @@ function recordKoyamaResponse(answerText) {
   });
 }
 
+// 最初からやり直す (即時ローカル初期化＆Firebase同期)
 function resetHearingProcess() {
   stopHearingTimer();
   hearingRemainingSeconds = 180;
@@ -489,6 +493,12 @@ function resetHearingProcess() {
   const replyDisplay = document.getElementById('admin-last-reply');
   if (replyDisplay) replyDisplay.innerText = '（応答待機中...）';
 
+  const qInput = document.getElementById('admin-question-input');
+  if (qInput) qInput.value = '';
+
+  const aInput = document.getElementById('koyama-answer-input');
+  if (aInput) aInput.value = '';
+
   if (userRole === 'admin') {
     document.getElementById('hearing-admin-box').classList.remove('hidden');
     document.getElementById('hearing-koyama-box').classList.add('hidden');
@@ -497,7 +507,7 @@ function resetHearingProcess() {
     document.getElementById('hearing-koyama-box').classList.remove('hidden');
   }
 
-  updateTimerUI();
+  startHearingTimer();
 
   if (db) {
     db.ref('hearing/live_state').set({
@@ -519,6 +529,8 @@ function startHearingTimer() {
 
   hearingTimerInterval = setInterval(() => {
     hearingRemainingSeconds--;
+
+    if (hearingRemainingSeconds < 0) hearingRemainingSeconds = 0;
     
     if (userRole === 'admin' && db) {
       db.ref('hearing/live_state').update({ remainingSeconds: hearingRemainingSeconds });
@@ -596,7 +608,7 @@ async function sendHearingLogToDiscord(qKey, answer) {
   }
 }
 
-// Toast 表示制御 (1.8秒後の確実なフェードアウト)
+// Toast 表示制御 (1.8秒後のフェードアウト)
 let toastTimer = null;
 
 function showToast(msg) {

@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Poco Pro</title>
+  <!-- 全面丸ゴシックフォント定義 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="soft-font-root">
   <div class="app-container">
 
     <!-- STEP 1: メインメニュー -->
@@ -42,7 +43,7 @@
           </div>
         </button>
 
-        <!-- 3D タクティカルバトル (鬼ごっこ・かくれんぼ) -->
+        <!-- 3D タクティカルバトル -->
         <button class="status-btn hero-btn" onclick="selectStatus('game3d')">
           <div class="icon-box">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -142,7 +143,7 @@
   </div>
 
   <!-- 対話セッション モーダル -->
-  <div id="hearing-overlay" class="overlay soft-font-root" onclick="handleOverlayClick(event, 'hearing-overlay')">
+  <div id="hearing-overlay" class="overlay" onclick="handleOverlayClick(event, 'hearing-overlay')">
     <div class="sheet hearing-sheet">
       <div class="sheet-handle"></div>
       
@@ -208,7 +209,7 @@
         </div>
       </div>
 
-      <!-- 終了サンクスページ（ボタンを「閉じる」と「やり直し」に整理） -->
+      <!-- 終了サンクスページ -->
       <div id="hearing-finish-box" class="hearing-finish-box hidden">
         <div class="finish-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>

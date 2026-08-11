@@ -6,7 +6,11 @@ let selectedButtonItem = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   renderButtons();
-  init3DScene();
+  try {
+    init3DScene();
+  } catch(e) {
+    console.warn("3D Scene init postponed:", e);
+  }
 });
 
 function selectStatus(statusType) {
@@ -30,7 +34,10 @@ function selectStatus(statusType) {
   step2.classList.add('active');
 
   document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`panel-${statusType}`).classList.add('active');
+  const targetPanel = document.getElementById(`panel-${statusType}`);
+  if (targetPanel) {
+    targetPanel.classList.add('active');
+  }
 }
 
 function resetToStep1() {
@@ -75,7 +82,8 @@ function renderButtons() {
 
 function handleOverlayClick(event, overlayId) {
   if (event.target.id === overlayId) {
-    document.getElementById(overlayId).classList.remove('active');
+    const el = document.getElementById(overlayId);
+    if (el) el.classList.remove('active');
   }
 }
 
@@ -181,7 +189,7 @@ async function sendMemoToDiscord() {
 }
 
 // ==========================================
-// Firebase 設定
+// Firebase 安全な初期化
 // ==========================================
 
 const firebaseConfig = {
@@ -195,14 +203,21 @@ const firebaseConfig = {
   measurementId: "G-8ZPPCMDTQN"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+let db = null;
+try {
+  if (typeof firebase !== 'undefined' && firebase.apps) {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    if (typeof firebase.database === 'function') {
+      db = firebase.database();
+    }
+  }
+} catch (e) {
+  console.warn("Firebase initialization skipped or failed:", e);
 }
-const db = firebase.database();
 
 // --- しりとり ---
-const shiritoriRef = db.ref('shiritori/words');
-
 function openShiritoriModal() {
   document.getElementById('shiritori-overlay').classList.add('active');
   listenShiritoriUpdates();
@@ -213,6 +228,8 @@ function closeShiritoriModal() {
 }
 
 function listenShiritoriUpdates() {
+  if (!db) return;
+  const shiritoriRef = db.ref('shiritori/words');
   shiritoriRef.limitToLast(50).on('value', (snapshot) => {
     const data = snapshot.val();
     const historyContainer = document.getElementById('shiritori-history');
@@ -250,7 +267,9 @@ function sendShiritoriWord() {
   const word = inputEl.value.trim();
 
   if (!word) return;
+  if (!db) return showToast('Firebaseの設定が必要です');
 
+  const shiritoriRef = db.ref('shiritori/words');
   shiritoriRef.once('value', (snapshot) => {
     const data = snapshot.val();
 
@@ -290,7 +309,8 @@ function closeShiritoriResetConfirm() {
 }
 
 function executeShiritoriReset() {
-  shiritoriRef.remove().then(() => {
+  if (!db) return closeShiritoriResetConfirm();
+  db.ref('shiritori/words').remove().then(() => {
     closeShiritoriResetConfirm();
     showToast('しりとりをリセットしました');
   });
@@ -303,13 +323,14 @@ function executeShiritoriReset() {
 let userRole = 'koyama';
 let hearingTimerInterval = null;
 let hearingRemainingSeconds = 180;
-const hearingStateRef = db.ref('hearing/live_state');
-const hearingLogRef = db.ref('hearing/records');
 
 function openHearingModal(role) {
   userRole = role;
   document.getElementById('hearing-overlay').classList.add('active');
   document.getElementById('hearing-finish-box').classList.add('hidden');
+
+  const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
+  if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
 
   if (role === 'admin') {
     document.getElementById('hearing-admin-box').classList.remove('hidden');
@@ -328,9 +349,13 @@ function closeHearingModal() {
 }
 
 function listenHearingSync() {
+  if (!db) return;
+  const hearingStateRef = db.ref('hearing/live_state');
   hearingStateRef.off();
   hearingStateRef.on('value', (snapshot) => {
     const data = snapshot.val();
+    const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
+
     if (!data) return;
 
     if (data.remainingSeconds !== undefined) {
@@ -343,9 +368,12 @@ function listenHearingSync() {
       document.getElementById('hearing-admin-box').classList.add('hidden');
       document.getElementById('hearing-koyama-box').classList.add('hidden');
       document.getElementById('hearing-finish-box').classList.remove('hidden');
+      if (footerCloseBtn) footerCloseBtn.classList.add('hidden'); // サンクスページ時は下部ボタンを隠して重複を解消
       return;
     } else {
       document.getElementById('hearing-finish-box').classList.add('hidden');
+      if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
+
       if (userRole === 'admin') {
         document.getElementById('hearing-admin-box').classList.remove('hidden');
         document.getElementById('hearing-koyama-box').classList.add('hidden');
@@ -382,12 +410,14 @@ function sendAdminQuestion() {
     startHearingTimer();
   }
 
-  hearingStateRef.update({
-    currentQuestion: qText,
-    remainingSeconds: hearingRemainingSeconds,
-    isFinished: false,
-    timestamp: Date.now()
-  });
+  if (db) {
+    db.ref('hearing/live_state').update({
+      currentQuestion: qText,
+      remainingSeconds: hearingRemainingSeconds,
+      isFinished: false,
+      timestamp: Date.now()
+    });
+  }
 
   showToast('質問を配信しました');
   document.getElementById('admin-question-input').value = '';
@@ -419,6 +449,11 @@ function executeKoyamaQuestionSubmit() {
 }
 
 function recordKoyamaResponse(answerText) {
+  if (!db) return showToast('通信エラー: Firebase未接続です');
+
+  const hearingStateRef = db.ref('hearing/live_state');
+  const hearingLogRef = db.ref('hearing/records');
+
   hearingStateRef.once('value', (snapshot) => {
     const data = snapshot.val() || {};
     const currentQ = data.currentQuestion || '質問';
@@ -440,6 +475,37 @@ function recordKoyamaResponse(answerText) {
   });
 }
 
+// 初期状態に完全リセットする関数
+function resetHearingProcess() {
+  stopHearingTimer();
+  hearingRemainingSeconds = 180;
+
+  if (db) {
+    db.ref('hearing/live_state').set({
+      currentQuestion: '（質問を待っています...）',
+      lastAnswer: '',
+      lastQuestion: '',
+      remainingSeconds: 180,
+      isFinished: false,
+      timestamp: Date.now()
+    });
+  }
+
+  document.getElementById('hearing-finish-box').classList.add('hidden');
+  const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
+  if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
+
+  if (userRole === 'admin') {
+    document.getElementById('hearing-admin-box').classList.remove('hidden');
+    document.getElementById('hearing-koyama-box').classList.add('hidden');
+  } else {
+    document.getElementById('hearing-admin-box').classList.add('hidden');
+    document.getElementById('hearing-koyama-box').classList.remove('hidden');
+  }
+
+  showToast('初期状態にリセットしました');
+}
+
 function startHearingTimer() {
   stopHearingTimer();
   updateTimerUI();
@@ -447,8 +513,8 @@ function startHearingTimer() {
   hearingTimerInterval = setInterval(() => {
     hearingRemainingSeconds--;
     
-    if (userRole === 'admin') {
-      hearingStateRef.update({ remainingSeconds: hearingRemainingSeconds });
+    if (userRole === 'admin' && db) {
+      db.ref('hearing/live_state').update({ remainingSeconds: hearingRemainingSeconds });
     }
 
     updateTimerUI();
@@ -475,18 +541,22 @@ function updateTimerUI() {
   const formattedSecs = String(secs).padStart(2, '0');
 
   if (hearingRemainingSeconds > 10) {
-    timerText.style.display = 'inline';
-    timerText.innerText = `あと ${mins}:${formattedSecs}`;
-    timerHourglass.classList.add('hidden');
+    if (timerText) {
+      timerText.style.display = 'inline';
+      timerText.innerText = `あと ${mins}:${formattedSecs}`;
+    }
+    if (timerHourglass) timerHourglass.classList.add('hidden');
   } else {
-    timerText.style.display = 'none';
-    timerHourglass.classList.remove('hidden');
+    if (timerText) timerText.style.display = 'none';
+    if (timerHourglass) timerHourglass.classList.remove('hidden');
   }
 }
 
 function finishHearingProcess() {
   stopHearingTimer();
-  hearingStateRef.update({ isFinished: true });
+  if (db) {
+    db.ref('hearing/live_state').update({ isFinished: true });
+  }
 }
 
 async function sendHearingLogToDiscord(qKey, answer) {
@@ -542,8 +612,10 @@ function close3DGameModal() {
 
 function setCameraViewMode(mode) {
   cameraViewMode = mode;
-  document.getElementById('view-tps-btn').classList.toggle('active', mode === 'TPS');
-  document.getElementById('view-fps-btn').classList.toggle('active', mode === 'FPS');
+  const tpsBtn = document.getElementById('view-tps-btn');
+  const fpsBtn = document.getElementById('view-fps-btn');
+  if (tpsBtn) tpsBtn.classList.toggle('active', mode === 'TPS');
+  if (fpsBtn) fpsBtn.classList.toggle('active', mode === 'FPS');
 
   if (game3DActive) {
     showToast(`視点を「${mode === 'FPS' ? '一人称 (FPS)' : '三人称 (TPS)'}」に切り替えました`);
@@ -552,7 +624,7 @@ function setCameraViewMode(mode) {
 
 function init3DScene() {
   const container = document.getElementById('canvas3d-container');
-  if (!container) return;
+  if (!container || typeof THREE === 'undefined') return;
 
   scene3D = new THREE.Scene();
   scene3D.background = new THREE.Color(0x050507);
@@ -574,7 +646,6 @@ function init3DScene() {
   playerLight.castShadow = true;
   scene3D.add(playerLight);
 
-  // 床
   const floorGeo = new THREE.PlaneGeometry(60, 60);
   const floorMat = new THREE.MeshStandardMaterial({ color: 0x121318, roughness: 0.8 });
   const floor = new THREE.Mesh(floorGeo, floorMat);
@@ -582,7 +653,6 @@ function init3DScene() {
   floor.receiveShadow = true;
   scene3D.add(floor);
 
-  // ステージ構築（迷路壁）
   const wallMat = new THREE.MeshStandardMaterial({ color: 0x22242c });
   const wallLayout = [
     { x: 0, z: -15, w: 30, h: 4, d: 1 },
@@ -614,7 +684,6 @@ function init3DScene() {
     });
   });
 
-  // タスクポイント
   const taskGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.2, 16);
   const taskMat = new THREE.MeshBasicMaterial({ color: 0x3b82f6 });
   const taskPositions = [{ x: -10, z: -10 }, { x: 10, z: -10 }, { x: -10, z: 10 }, { x: 10, z: 10 }];
@@ -626,7 +695,6 @@ function init3DScene() {
     taskPoints3D.push(taskMesh);
   });
 
-  // プレイヤー (白)
   const playerGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.8, 16);
   const playerMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
   player3D = new THREE.Mesh(playerGeo, playerMat);
@@ -634,7 +702,6 @@ function init3DScene() {
   player3D.castShadow = true;
   scene3D.add(player3D);
 
-  // 鬼 (赤)
   const enemyMat = new THREE.MeshStandardMaterial({ color: 0xe54b4b });
   enemy3D = new THREE.Mesh(playerGeo, enemyMat);
   enemy3D.position.set(12, 0.9, -12);
@@ -657,8 +724,8 @@ function toggle3DGame() {
   const statusEl = document.getElementById('game3d-status');
 
   if (game3DActive) {
-    btn.innerText = 'STOP';
-    statusEl.innerText = 'PLAYING';
+    if (btn) btn.innerText = 'STOP';
+    if (statusEl) statusEl.innerText = 'PLAYING';
     taskProgress = 0;
     updateTaskUI();
     animate3D();
@@ -695,6 +762,7 @@ function trigger3DDash() {
 }
 
 function movePlayerWithCollision(dx, dz) {
+  if (!player3D) return;
   const nextX = player3D.position.x + dx;
   const nextZ = player3D.position.z + dz;
 
@@ -726,10 +794,13 @@ function animate3D() {
 
   movePlayerWithCollision(moveDir.x, moveDir.z);
 
-  playerLight.position.set(player3D.position.x, 10, player3D.position.z + 2);
-  playerLight.target = player3D;
+  if (playerLight && player3D) {
+    playerLight.position.set(player3D.position.x, 10, player3D.position.z + 2);
+    playerLight.target = player3D;
+  }
 
   taskPoints3D.forEach(tp => {
+    if (!player3D) return;
     const dist = Math.hypot(player3D.position.x - tp.position.x, player3D.position.z - tp.position.z);
     if (dist < 1.5 && taskProgress < 100) {
       taskProgress = Math.min(100, taskProgress + 0.4);
@@ -741,36 +812,41 @@ function animate3D() {
     }
   });
 
-  const dx = player3D.position.x - enemy3D.position.x;
-  const dz = player3D.position.z - enemy3D.position.z;
-  const dist = Math.hypot(dx, dz);
+  if (player3D && enemy3D) {
+    const dx = player3D.position.x - enemy3D.position.x;
+    const dz = player3D.position.z - enemy3D.position.z;
+    const dist = Math.hypot(dx, dz);
 
-  if (dist > 0.8) {
-    enemy3D.position.x += (dx / dist) * 0.11;
-    enemy3D.position.z += (dz / dist) * 0.11;
-  } else {
-    showToast('鬼に確保されました！');
-    stop3DGame();
-    return;
+    if (dist > 0.8) {
+      enemy3D.position.x += (dx / dist) * 0.11;
+      enemy3D.position.z += (dz / dist) * 0.11;
+    } else {
+      showToast('鬼に確保されました！');
+      stop3DGame();
+      return;
+    }
+
+    if (cameraViewMode === 'FPS') {
+      camera3D.position.set(player3D.position.x, 1.6, player3D.position.z);
+      const lookTargetX = player3D.position.x + (moveDir.x || (dx / dist));
+      const lookTargetZ = player3D.position.z + (moveDir.z || (dz / dist));
+      camera3D.lookAt(lookTargetX, 1.6, lookTargetZ);
+    } else {
+      camera3D.position.x = player3D.position.x;
+      camera3D.position.y = 16;
+      camera3D.position.z = player3D.position.z + 12;
+      camera3D.lookAt(player3D.position.x, 0, player3D.position.z);
+    }
   }
 
-  if (cameraViewMode === 'FPS') {
-    camera3D.position.set(player3D.position.x, 1.6, player3D.position.z);
-    const lookTargetX = player3D.position.x + (moveDir.x || (dx / dist));
-    const lookTargetZ = player3D.position.z + (moveDir.z || (dz / dist));
-    camera3D.lookAt(lookTargetX, 1.6, lookTargetZ);
-  } else {
-    camera3D.position.x = player3D.position.x;
-    camera3D.position.y = 16;
-    camera3D.position.z = player3D.position.z + 12;
-    camera3D.lookAt(player3D.position.x, 0, player3D.position.z);
+  if (renderer3D && scene3D && camera3D) {
+    renderer3D.render(scene3D, camera3D);
   }
-
-  renderer3D.render(scene3D, camera3D);
 }
 
 function showToast(msg) {
   const toast = document.getElementById('toast');
+  if (!toast) return;
   toast.innerText = msg;
   toast.classList.add('show');
 

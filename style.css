@@ -1,4 +1,4 @@
-/* Poco Pro - Enhanced Style Sheet */
+/* Poco Pro - Style Sheet */
 
 :root {
   --bg-main: #0d0e11;
@@ -501,6 +501,11 @@ select.select-box:focus, input:focus {
   font-size: 0.9rem;
   color: var(--text-secondary);
   line-height: 1.6;
+}
+
+.finish-actions {
+  width: 100%;
+  margin-top: 10px;
 }
 
 /* Fullscreen 3D Game View */

@@ -188,7 +188,7 @@
         <div class="koyama-answer-container">
           <div class="input-with-question">
             <input type="text" id="koyama-answer-input" placeholder="単語で入力..." autocomplete="off" />
-            <button class="btn-question-mark" onclick="submitKoyamaQuestionMark()" title="意味がわからない・答えにくい">?</button>
+            <button class="btn-question-mark" onclick="submitKoyamaQuestionMark()" title="わからない・質問の意味が曖昧">?</button>
           </div>
           <button class="btn btn-primary" onclick="submitKoyamaAnswer()">送信する</button>
         </div>
@@ -208,7 +208,24 @@
     </div>
   </div>
 
-  <!-- 送信確認モーダル -->
+  <!-- 「？」専用 送信確認モーダル -->
+  <div id="koyama-question-confirm-overlay" class="overlay overlay-top" onclick="handleOverlayClick(event, 'koyama-question-confirm-overlay')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="confirm-container">
+        <div class="sheet-header">
+          <h2>「？」を送信しますか？</h2>
+          <p>「質問の意味がわからない・答えにくい」という状態を送信します。</p>
+        </div>
+        <div class="editor-actions">
+          <button class="btn btn-secondary" onclick="closeKoyamaQuestionConfirm()">キャンセル</button>
+          <button class="btn btn-primary" onclick="executeKoyamaQuestionSubmit()">送信する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通常の送信確認モーダル -->
   <div id="confirm-overlay" class="overlay" onclick="handleOverlayClick(event, 'confirm-overlay')">
     <div class="sheet">
       <div class="sheet-handle"></div>

@@ -1,6 +1,6 @@
 // Poco Pro - Controller Logic
 
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL_HERE";
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1532953246061035731/JngZ2PorycVIurpCJzFMOGSnsZ5dtdkJIohOEF4sGoOKZv4rP5fPEts-jYrHFihbc528";
 
 let selectedButtonItem = null;
 
@@ -291,7 +291,7 @@ function executeShiritoriReset() {
 }
 
 // ==========================================
-// 5W1H リアルタイムヒアリング (時間設定機能付き)
+// 5W1H リアルタイムヒアリング (完全同期版)
 // ==========================================
 
 let userRole = 'koyama';
@@ -321,42 +321,62 @@ function closeHearingModal() {
   document.getElementById('hearing-overlay').classList.remove('active');
 }
 
+// リアルタイム双方向同期リスナー
 function listenHearingSync() {
+  hearingStateRef.off(); // 既存リスナーの重複防止
   hearingStateRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
 
+    // タイマー時間の同期
+    if (data.remainingSeconds !== undefined) {
+      hearingRemainingSeconds = data.remainingSeconds;
+      updateTimerUI();
+    }
+
+    // 終了状態の同期
     if (data.isFinished) {
       stopHearingTimer();
       document.getElementById('hearing-admin-box').classList.add('hidden');
       document.getElementById('hearing-koyama-box').classList.add('hidden');
       document.getElementById('hearing-finish-box').classList.remove('hidden');
       return;
+    } else {
+      document.getElementById('hearing-finish-box').classList.add('hidden');
+      if (userRole === 'admin') {
+        document.getElementById('hearing-admin-box').classList.remove('hidden');
+        document.getElementById('hearing-koyama-box').classList.add('hidden');
+      } else if (userRole === 'koyama') {
+        document.getElementById('hearing-admin-box').classList.add('hidden');
+        document.getElementById('hearing-koyama-box').classList.remove('hidden');
+      }
     }
 
-    if (data.remainingSeconds !== undefined) {
-      hearingRemainingSeconds = data.remainingSeconds;
-      updateTimerUI();
+    // 小山くん画面：質問の即時反映
+    if (userRole === 'koyama') {
+      const qDisplay = document.getElementById('koyama-q-display');
+      if (qDisplay) {
+        qDisplay.innerText = data.currentQuestion || '（質問を待っています...）';
+      }
     }
 
-    if (data.currentQuestion && userRole === 'koyama') {
-      document.getElementById('koyama-q-display').innerText = data.currentQuestion;
-    }
-
-    if (data.lastAnswer && userRole === 'admin') {
-      document.getElementById('admin-last-reply').innerText = `${data.lastQuestion || '質問'} ➔ 「${data.lastAnswer}」`;
+    // 管理者画面：小山くんからの回答の即時反映
+    if (userRole === 'admin') {
+      const replyDisplay = document.getElementById('admin-last-reply');
+      if (replyDisplay && data.lastAnswer) {
+        replyDisplay.innerText = `${data.lastQuestion || '質問'}\n➔ 「${data.lastAnswer}」`;
+      }
     }
   });
 }
 
-// 【管理者】質問＆設定した制限時間を送信
+// 【管理者】質問をリアルタイム送信
 function sendAdminQuestion() {
   const qText = document.getElementById('admin-question-input').value.trim();
   if (!qText) return showToast('質問を入力してください');
 
   const selectedSeconds = parseInt(document.getElementById('admin-timer-select').value, 10) || 180;
 
-  // はじめて送信する際にドロップダウンで選択した時間でタイマー起動
   if (!hearingTimerInterval) {
     hearingRemainingSeconds = selectedSeconds;
     startHearingTimer();
@@ -365,10 +385,11 @@ function sendAdminQuestion() {
   hearingStateRef.update({
     currentQuestion: qText,
     remainingSeconds: hearingRemainingSeconds,
-    isFinished: false
+    isFinished: false,
+    timestamp: Date.now()
   });
 
-  showToast('質問を小山くんに送信しました');
+  showToast('質問を送信しました');
   document.getElementById('admin-question-input').value = '';
 }
 
@@ -381,9 +402,22 @@ function submitKoyamaAnswer() {
   document.getElementById('koyama-answer-input').value = '';
 }
 
-// 【小山くん】「？」ボタン送信
+// 【小山くん】「？」ボタン押下（確認ダイアログの表示）
 function submitKoyamaQuestionMark() {
-  recordKoyamaResponse('？（わからない・質問の言い換え希望）');
+  openKoyamaQuestionConfirm();
+}
+
+function openKoyamaQuestionConfirm() {
+  document.getElementById('koyama-question-confirm-overlay').classList.add('active');
+}
+
+function closeKoyamaQuestionConfirm() {
+  document.getElementById('koyama-question-confirm-overlay').classList.remove('active');
+}
+
+function executeKoyamaQuestionSubmit() {
+  closeKoyamaQuestionConfirm();
+  recordKoyamaResponse('？（わからない・質問の意味の言い換え希望）');
 }
 
 function recordKoyamaResponse(answerText) {
@@ -393,7 +427,8 @@ function recordKoyamaResponse(answerText) {
 
     hearingStateRef.update({
       lastQuestion: currentQ,
-      lastAnswer: answerText
+      lastAnswer: answerText,
+      timestamp: Date.now()
     });
 
     hearingLogRef.push({
@@ -403,7 +438,7 @@ function recordKoyamaResponse(answerText) {
     });
 
     sendHearingLogToDiscord(currentQ, answerText);
-    showToast('こたえを送信しました');
+    showToast('回答を送信しました');
   });
 }
 

@@ -1,48 +1,48 @@
-/* Poco Pro - Style Sheet */
+/* Poco Pro - High-End Soft Design CSS */
 
 :root {
-  --bg-main: #0d0e11;
-  --bg-card: #1c1d22;
-  --bg-card-hover: #2a2b32;
-  --bg-input: #141518;
+  --bg-main: #0a0b0e;
+  --bg-card: #16171d;
+  --bg-card-hover: #22242c;
+  --bg-input: #101116;
   
-  --border-subtle: #3a3d46;
-  --border-focus: #636877;
+  --border-subtle: #2d303a;
+  --border-focus: #525868;
   
   --text-primary: #ffffff;
-  --text-secondary: #b0b5c0;
-  --text-muted: #808593;
+  --text-secondary: #a2a7b5;
+  --text-muted: #6f7482;
 
   --btn-primary-bg: #ffffff;
-  --btn-primary-text: #0d0e11;
-  --btn-secondary-bg: #2a2b32;
+  --btn-primary-text: #0a0b0e;
+  --btn-secondary-bg: #22242c;
   --btn-secondary-text: #ffffff;
   --btn-danger-bg: #e54b4b;
 
-  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-  --font-soft: 'Zen Maru Gothic', -apple-system, sans-serif;
+  --font-soft: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  --r-xl: 18px;
-  --r-lg: 14px;
-  --r-md: 10px;
-  --r-sm: 6px;
+  --r-xl: 20px;
+  --r-lg: 16px;
+  --r-md: 12px;
+  --r-sm: 8px;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ★ アプリ全体のフォントを全面丸ゴシック（Zen Maru Gothic）に統一 ★ */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-soft) !important;
 }
 
 body {
   background-color: var(--bg-main);
   color: var(--text-primary);
-  font-family: var(--font-family);
   display: flex;
   justify-content: center;
   min-height: 100vh;
@@ -64,19 +64,20 @@ body {
 }
 
 .brand-logo {
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 1.9rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
 .brand-sub {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   color: var(--text-secondary);
   margin-top: 4px;
 }
 
-/* ステップ切り替えの非表示設定 */
+/* ステップ切替 */
 .step-panel {
   display: none !important;
   flex-direction: column;
@@ -127,7 +128,7 @@ body {
   border: none;
   color: var(--text-secondary);
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -161,8 +162,8 @@ body {
 }
 
 .status-btn.hero-btn {
-  background: linear-gradient(135deg, #22252e 0%, #1c1d22 100%);
-  border-color: #4a4e5d;
+  background: linear-gradient(135deg, #1f222b 0%, #16171d 100%);
+  border-color: #3b4050;
 }
 
 .status-btn:active {
@@ -171,7 +172,6 @@ body {
   transform: scale(0.985);
 }
 
-/* SVGアイコン固定サイズ定義 */
 .icon-box {
   display: flex;
   align-items: center;
@@ -190,8 +190,6 @@ body {
 .icon-box svg {
   width: 24px !important;
   height: 24px !important;
-  max-width: 24px !important;
-  max-height: 24px !important;
   stroke: var(--text-primary);
 }
 
@@ -212,7 +210,7 @@ body {
   color: var(--text-secondary);
 }
 
-/* Cards & Quick Grid */
+/* Cards Grid */
 .cards-grid, .quick-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -248,7 +246,7 @@ body {
 
 .card-item .title, .quick-btn .label {
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
   line-height: 1.35;
 }
@@ -257,9 +255,9 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -284,7 +282,7 @@ body {
   border-radius: var(--r-xl) var(--r-xl) 0 0;
   width: 100%;
   max-width: 440px;
-  padding: 16px 20px 32px 20px;
+  padding: 18px 20px 36px 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -297,7 +295,7 @@ body {
 }
 
 .sheet-handle {
-  width: 36px;
+  width: 38px;
   height: 4px;
   background: var(--border-subtle);
   border-radius: 2px;
@@ -305,30 +303,69 @@ body {
   margin-bottom: 4px;
 }
 
-/* 5W1H Hearing Styles */
-.soft-font-root, .soft-font-root * {
-  font-family: var(--font-soft) !important;
+/* ★ 洗練された入力フォームデザイン（文字入力枠の質感向上） ★ */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
+.input-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* 入力枠・セレクト・テキストエリア共通の高級感あるスタイル */
+input[type="text"], 
+select.select-box, 
+textarea {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus, 
+select.select-box:focus, 
+textarea:focus {
+  outline: none;
+  border-color: #ffffff;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+textarea {
+  height: 80px;
+  line-height: 1.5;
+  resize: none;
+}
+
+/* 5W1H Hearing Specifics */
 .hearing-timer-box {
   background: var(--bg-main);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-md);
-  padding: 10px 16px;
+  border-radius: var(--r-lg);
+  padding: 12px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .timer-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .timer-value {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 900;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -356,117 +393,88 @@ body {
 .hearing-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .hearing-q-tag {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 900;
   color: var(--text-muted);
+  letter-spacing: 0.05em;
 }
 
 .hearing-q-title {
   font-size: 1.35rem;
-  font-weight: 700;
+  font-weight: 900;
   color: #ffffff;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .hearing-q-sub {
   font-size: 0.85rem;
+  font-weight: 500;
   color: var(--text-secondary);
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.input-group label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.input-group input, select.select-box {
-  width: 100%;
-  height: 48px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-md);
-  padding: 0 14px;
-  color: #ffffff;
-  font-size: 0.95rem;
-}
-
-select.select-box:focus, input:focus {
-  outline: none;
-  border-color: var(--border-focus);
 }
 
 .koyama-answer-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-top: 8px;
 }
 
 .input-with-question {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
 .input-with-question input {
   flex: 1;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-md);
-  padding: 12px 14px;
-  color: #ffffff;
-  font-size: 1rem;
 }
 
 .btn-question-mark {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   background: var(--bg-card-hover);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   color: #ffffff;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 900;
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .btn-question-mark:active {
-  background: var(--border-focus);
+  background: #ffffff;
+  color: #0a0b0e;
   transform: scale(0.95);
 }
 
 .hearing-history-log {
   background: var(--bg-main);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-md);
-  padding: 12px;
-  margin: 6px 0;
+  border-radius: var(--r-lg);
+  padding: 14px;
+  margin: 4px 0;
 }
 
 .log-title {
   font-size: 0.75rem;
+  font-weight: 700;
   color: var(--text-secondary);
 }
 
 .log-content {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #ffffff;
-  margin-top: 4px;
+  margin-top: 6px;
   white-space: pre-wrap;
 }
 
@@ -475,13 +483,13 @@ select.select-box:focus, input:focus {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 14px;
+  gap: 16px;
   padding: 20px 0 10px;
 }
 
 .finish-icon {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   color: #ffffff;
 }
 
@@ -492,23 +500,24 @@ select.select-box:focus, input:focus {
 }
 
 .finish-title {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 900;
   color: #ffffff;
 }
 
 .finish-sub {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .finish-actions {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
-/* Fullscreen 3D Game View */
+/* 3D Game Styles */
 .game3d-fullscreen-view {
   position: fixed;
   inset: 0;
@@ -541,11 +550,11 @@ select.select-box:focus, input:focus {
 }
 
 .btn-fullscreen-back {
-  background: rgba(28, 29, 34, 0.8);
+  background: rgba(22, 23, 29, 0.85);
   border: 1px solid var(--border-subtle);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -553,25 +562,19 @@ select.select-box:focus, input:focus {
   cursor: pointer;
 }
 
-.btn-fullscreen-back svg {
-  width: 20px;
-  height: 20px;
-}
-
 .game3d-status-pill {
   font-size: 0.75rem;
-  font-weight: 700;
-  background: rgba(28, 29, 34, 0.85);
+  font-weight: 900;
+  background: rgba(22, 23, 29, 0.85);
   border: 1px solid var(--border-subtle);
-  padding: 6px 14px;
+  padding: 6px 16px;
   border-radius: 20px;
   color: #ffffff;
-  letter-spacing: 0.05em;
 }
 
 .mode-selector {
   display: flex;
-  background: rgba(20, 21, 24, 0.8);
+  background: rgba(16, 17, 22, 0.85);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-md);
   padding: 3px;
@@ -596,10 +599,10 @@ select.select-box:focus, input:focus {
 
 .task-bar-container {
   position: absolute;
-  top: 68px;
+  top: 72px;
   left: 16px;
   right: 16px;
-  background: rgba(20, 21, 24, 0.85);
+  background: rgba(22, 23, 29, 0.85);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-md);
   padding: 8px 12px;
@@ -611,9 +614,8 @@ select.select-box:focus, input:focus {
 
 .task-bar-label {
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 900;
   color: var(--text-secondary);
-  letter-spacing: 0.08em;
 }
 
 .task-bar-bg {
@@ -651,45 +653,31 @@ select.select-box:focus, input:focus {
 
 .dpad-btn {
   height: 44px;
-  background: rgba(28, 29, 34, 0.85);
+  background: rgba(22, 23, 29, 0.85);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-md);
   color: #ffffff;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.dpad-btn:active {
-  background: var(--bg-card-hover);
-}
-
-.dash-btn {
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-  background: rgba(42, 43, 50, 0.9);
-}
-
 .btn-game-action {
   height: 52px;
   padding: 0 24px;
   background: #ffffff;
-  color: #0d0e11;
+  color: #0a0b0e;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 900;
   border: none;
   border-radius: var(--r-md);
   cursor: pointer;
-  letter-spacing: 0.05em;
 }
 
-.btn-game-action:active {
-  opacity: 0.85;
-}
-
+/* Buttons & Common */
 .editor-actions {
   display: flex;
   gap: 10px;
@@ -699,9 +687,9 @@ select.select-box:focus, input:focus {
 .btn {
   flex: 1;
   padding: 14px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 900;
   border: none;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.15s ease;
@@ -727,7 +715,7 @@ select.select-box:focus, input:focus {
   border: none;
   color: var(--text-secondary);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 8px;
   cursor: pointer;
   align-self: center;
@@ -743,13 +731,13 @@ select.select-box:focus, input:focus {
   bottom: 32px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: #2a2b32;
+  background: #22242c;
   border: 1px solid var(--border-subtle);
   color: #ffffff;
   padding: 12px 22px;
   border-radius: 30px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   opacity: 0;
   transition: opacity 0.25s ease, transform 0.25s var(--ease-out-expo);

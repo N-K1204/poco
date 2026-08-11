@@ -1,7 +1,6 @@
 // Poco Pro - Data Configuration
 
 const POCO_DATA = {
-  // 1. 今の状態
   statusButtons: [
     {
       id: 'status_calm',
@@ -33,7 +32,6 @@ const POCO_DATA = {
     }
   ],
 
-  // 2. 通話の希望
   callButtons: [
     {
       id: 'call_now',
@@ -51,7 +49,6 @@ const POCO_DATA = {
     }
   ],
 
-  // 3. クイック応答
   quickReplies: [
     {
       id: 'quick_yes',
@@ -66,55 +63,6 @@ const POCO_DATA = {
       label: 'いいえ / ちがう',
       toast: '「いいえ / ちがう」を選択しました',
       svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
-    }
-  ],
-
-  // 4. 5W1Hヒアリング定義（やさしい言葉＋言い換え質問）
-  hearingQuestions: [
-    {
-      id: 'when',
-      key: 'いつ (When)',
-      title: 'いつのこと？',
-      sub: 'あてはまるものをタップしてね',
-      rephraseTitle: 'じかんは？（さっき / 前）',
-      rephraseSub: 'どちらかに近いほうを選んでね',
-      options: ['さっき', 'きょう', 'きのう', 'まえから']
-    },
-    {
-      id: 'where',
-      key: 'どこで (Where)',
-      title: 'どこでのこと？',
-      sub: 'いた場所を教えてね',
-      rephraseTitle: 'ばしょはどこ？',
-      rephraseSub: 'へやの中？ そと？',
-      options: ['じぶんの部屋', '2かい', '1かい・リビング', 'そと・学校']
-    },
-    {
-      id: 'who',
-      key: 'だれと (Who)',
-      title: 'だれがいた？',
-      sub: 'その場所にいた人だよ',
-      rephraseTitle: 'あいてはだれ？',
-      rephraseSub: 'ひとり？ だれかいた？',
-      options: ['ひとりで', 'だれかと', '家族', 'しらないひと']
-    },
-    {
-      id: 'what',
-      key: 'なにを (What)',
-      title: 'なにがあったの？',
-      sub: '起きたことを単語で選んでね',
-      rephraseTitle: 'なにがおきた？',
-      rephraseSub: 'いちばん近いものを選んでね',
-      options: ['大きな音', '予定が変わった', 'ことばがでなくなった', 'いやなことがあった']
-    },
-    {
-      id: 'why',
-      key: 'きもち (Why)',
-      title: 'いまの気持ちは？',
-      sub: '気持ちに近い言葉を選んでね',
-      rephraseTitle: 'どんなきもち？',
-      rephraseSub: 'あせってる？ かなしい？',
-      options: ['びっくりした', 'あせっている', 'かなしい・しんどい', 'イライラする']
     }
   ]
 };

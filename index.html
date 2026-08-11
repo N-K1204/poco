@@ -187,7 +187,10 @@
           <div id="admin-last-reply" class="log-content">（応答待機中...）</div>
         </div>
 
-        <button class="btn btn-secondary btn-danger-text" onclick="finishHearingProcess()">セッションを終了する</button>
+        <div class="editor-actions">
+          <button class="btn btn-secondary" onclick="resetHearingProcess()">最初からやり直す</button>
+          <button class="btn btn-secondary btn-danger-text" onclick="finishHearingProcess()">セッションを終了する</button>
+        </div>
       </div>
 
       <!-- ガイド（小山くん）用画面 -->
@@ -205,17 +208,21 @@
         </div>
       </div>
 
-      <!-- 終了サンクスページ -->
+      <!-- 終了サンクスページ（ボタンを「閉じる」と「やり直し」に整理） -->
       <div id="hearing-finish-box" class="hearing-finish-box hidden">
         <div class="finish-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <h2 class="finish-title">おつかれさま、ありがとう。</h2>
         <p class="finish-sub">きもちを教えてくれてありがとう。<br>きょうのおはなしは、もうおしまいだよ。</p>
-        <button class="btn btn-primary" onclick="closeHearingModal()">画面を閉じる</button>
+
+        <div class="editor-actions finish-actions">
+          <button class="btn btn-secondary" onclick="resetHearingProcess()">最初からやり直す</button>
+          <button class="btn btn-primary" onclick="closeHearingModal()">画面を閉じる</button>
+        </div>
       </div>
 
-      <button class="btn-close-text" onclick="closeHearingModal()">閉じる</button>
+      <button id="hearing-footer-close-btn" class="btn-close-text" onclick="closeHearingModal()">閉じる</button>
     </div>
   </div>
 
@@ -382,7 +389,7 @@
   <!-- Three.js Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <!-- Firebase SDK (※Database用スクリプトを復元) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 

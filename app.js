@@ -193,14 +193,14 @@ async function sendMemoToDiscord() {
 // ==========================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB15Oycs-Kea3XpblJp-woQoigB3dfQKlg",
-  authDomain: "poco-app-a97ba.firebaseapp.com",
-  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "poco-app-a97ba",
-  storageBucket: "poco-app-a97ba.firebasestorage.app",
-  messagingSenderId: "725824798305",
-  appId: "1:725824798305:web:cd6192c353dbac36baf420",
-  measurementId: "G-8ZPPCMDTQN"
+  apiKey: "AIzaSyB15Oycs-Kea3XpblJp-woQoigB3dfQKlg",
+  authDomain: "poco-app-a97ba.firebaseapp.com",
+  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "poco-app-a97ba",
+  storageBucket: "poco-app-a97ba.firebasestorage.app",
+  messagingSenderId: "725824798305",
+  appId: "1:725824798305:web:cd6192c353dbac36baf420",
+  measurementId: "G-8ZPPCMDTQN"
 };
 
 let db = null;
@@ -368,7 +368,7 @@ function listenHearingSync() {
       document.getElementById('hearing-admin-box').classList.add('hidden');
       document.getElementById('hearing-koyama-box').classList.add('hidden');
       document.getElementById('hearing-finish-box').classList.remove('hidden');
-      if (footerCloseBtn) footerCloseBtn.classList.add('hidden'); // サンクスページ時は下部ボタンを隠して重複を解消
+      if (footerCloseBtn) footerCloseBtn.classList.add('hidden');
       return;
     } else {
       document.getElementById('hearing-finish-box').classList.add('hidden');
@@ -449,7 +449,7 @@ function executeKoyamaQuestionSubmit() {
 }
 
 function recordKoyamaResponse(answerText) {
-  if (!db) return showToast('通信エラー: Firebase未接続です');
+  if (!db) return showToast('回答を受け付けました');
 
   const hearingStateRef = db.ref('hearing/live_state');
   const hearingLogRef = db.ref('hearing/records');
@@ -475,11 +475,33 @@ function recordKoyamaResponse(answerText) {
   });
 }
 
-// 初期状態に完全リセットする関数
+// 最初からやり直す (即時ローカルリセット＆同期)
 function resetHearingProcess() {
   stopHearingTimer();
   hearingRemainingSeconds = 180;
 
+  // ローカル表示の強制リセット
+  document.getElementById('hearing-finish-box').classList.add('hidden');
+  const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
+  if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
+
+  const koyamaDisplay = document.getElementById('koyama-q-display');
+  if (koyamaDisplay) koyamaDisplay.innerText = '（質問を待っています...）';
+
+  const replyDisplay = document.getElementById('admin-last-reply');
+  if (replyDisplay) replyDisplay.innerText = '（応答待機中...）';
+
+  if (userRole === 'admin') {
+    document.getElementById('hearing-admin-box').classList.remove('hidden');
+    document.getElementById('hearing-koyama-box').classList.add('hidden');
+  } else {
+    document.getElementById('hearing-admin-box').classList.add('hidden');
+    document.getElementById('hearing-koyama-box').classList.remove('hidden');
+  }
+
+  updateTimerUI();
+
+  // Firebase DB側の初期化
   if (db) {
     db.ref('hearing/live_state').set({
       currentQuestion: '（質問を待っています...）',
@@ -489,18 +511,6 @@ function resetHearingProcess() {
       isFinished: false,
       timestamp: Date.now()
     });
-  }
-
-  document.getElementById('hearing-finish-box').classList.add('hidden');
-  const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
-  if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
-
-  if (userRole === 'admin') {
-    document.getElementById('hearing-admin-box').classList.remove('hidden');
-    document.getElementById('hearing-koyama-box').classList.add('hidden');
-  } else {
-    document.getElementById('hearing-admin-box').classList.add('hidden');
-    document.getElementById('hearing-koyama-box').classList.remove('hidden');
   }
 
   showToast('初期状態にリセットしました');
@@ -554,6 +564,13 @@ function updateTimerUI() {
 
 function finishHearingProcess() {
   stopHearingTimer();
+  document.getElementById('hearing-admin-box').classList.add('hidden');
+  document.getElementById('hearing-koyama-box').classList.add('hidden');
+  document.getElementById('hearing-finish-box').classList.remove('hidden');
+
+  const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
+  if (footerCloseBtn) footerCloseBtn.classList.add('hidden');
+
   if (db) {
     db.ref('hearing/live_state').update({ isFinished: true });
   }

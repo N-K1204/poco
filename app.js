@@ -475,12 +475,10 @@ function recordKoyamaResponse(answerText) {
   });
 }
 
-// 最初からやり直す (即時ローカルリセット＆同期)
 function resetHearingProcess() {
   stopHearingTimer();
   hearingRemainingSeconds = 180;
 
-  // ローカル表示の強制リセット
   document.getElementById('hearing-finish-box').classList.add('hidden');
   const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
   if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
@@ -501,7 +499,6 @@ function resetHearingProcess() {
 
   updateTimerUI();
 
-  // Firebase DB側の初期化
   if (db) {
     db.ref('hearing/live_state').set({
       currentQuestion: '（質問を待っています...）',
@@ -597,6 +594,33 @@ async function sendHearingLogToDiscord(qKey, answer) {
   } catch (e) {
     console.error('Discord Log Error:', e);
   }
+}
+
+// Toast 表示制御 (1.8秒後の確実なフェードアウト)
+let toastTimer = null;
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+
+  if (toastTimer) {
+    clearTimeout(toastTimer);
+    toastTimer = null;
+  }
+
+  toast.classList.remove('show');
+  toast.innerText = msg;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+    });
+  });
+
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+    toastTimer = null;
+  }, 1800);
 }
 
 // ==========================================
@@ -859,16 +883,4 @@ function animate3D() {
   if (renderer3D && scene3D && camera3D) {
     renderer3D.render(scene3D, camera3D);
   }
-}
-
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  if (!toast) return;
-  toast.innerText = msg;
-  toast.classList.add('show');
-
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.classList.remove('show');
-  }, 2200);
 }

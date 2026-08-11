@@ -317,12 +317,13 @@ function executeShiritoriReset() {
 }
 
 // ==========================================
-// 5W1H リアルタイム対話セッション (タイマー・初期化完全改修)
+// 5W1H リアルタイム対話セッション（質問後スタート＆小山くん閲覧時のみ進行）
 // ==========================================
 
 let userRole = 'koyama';
 let hearingTimerInterval = null;
 let hearingRemainingSeconds = 180;
+let isTimerActive = false; // タイマーが起動状態かどうか
 
 function openHearingModal(role) {
   userRole = role;
@@ -340,12 +341,11 @@ function openHearingModal(role) {
     document.getElementById('hearing-koyama-box').classList.remove('hidden');
   }
 
-  // 画面を開いた時点でカウントダウンを開始
-  startHearingTimer();
   listenHearingSync();
 }
 
 function closeHearingModal() {
+  // モーダルを閉じた時はタイマー進行を一時停止する
   stopHearingTimer();
   document.getElementById('hearing-overlay').classList.remove('active');
 }
@@ -360,9 +360,20 @@ function listenHearingSync() {
 
     if (!data) return;
 
-    if (data.remainingSeconds !== undefined && userRole === 'koyama') {
+    if (data.remainingSeconds !== undefined) {
       hearingRemainingSeconds = data.remainingSeconds;
       updateTimerUI();
+    }
+
+    if (data.isTimerActive !== undefined) {
+      isTimerActive = data.isTimerActive;
+    }
+
+    // 小山くんがガイドセッションを開いていて、かつタイマーが起動済みであればカウントダウン開始
+    if (userRole === 'koyama' && isTimerActive && !data.isFinished) {
+      startHearingTimer();
+    } else {
+      stopHearingTimer();
     }
 
     if (data.isFinished) {
@@ -401,6 +412,7 @@ function listenHearingSync() {
   });
 }
 
+// 【管理者】質問配信（ここでタイマーフラグをアクティブ化）
 function sendAdminQuestion() {
   const qText = document.getElementById('admin-question-input').value.trim();
   if (!qText) return showToast('質問を入力してください');
@@ -408,12 +420,13 @@ function sendAdminQuestion() {
   const selectedSeconds = parseInt(document.getElementById('admin-timer-select').value, 10) || 180;
 
   hearingRemainingSeconds = selectedSeconds;
-  startHearingTimer();
+  isTimerActive = true;
 
   if (db) {
     db.ref('hearing/live_state').update({
       currentQuestion: qText,
       remainingSeconds: hearingRemainingSeconds,
+      isTimerActive: true,
       isFinished: false,
       timestamp: Date.now()
     });
@@ -478,10 +491,10 @@ function recordKoyamaResponse(answerText) {
   });
 }
 
-// 最初からやり直す (即時ローカル初期化＆Firebase同期)
 function resetHearingProcess() {
   stopHearingTimer();
   hearingRemainingSeconds = 180;
+  isTimerActive = false;
 
   document.getElementById('hearing-finish-box').classList.add('hidden');
   const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
@@ -507,7 +520,7 @@ function resetHearingProcess() {
     document.getElementById('hearing-koyama-box').classList.remove('hidden');
   }
 
-  startHearingTimer();
+  updateTimerUI();
 
   if (db) {
     db.ref('hearing/live_state').set({
@@ -515,6 +528,7 @@ function resetHearingProcess() {
       lastAnswer: '',
       lastQuestion: '',
       remainingSeconds: 180,
+      isTimerActive: false,
       isFinished: false,
       timestamp: Date.now()
     });
@@ -523,16 +537,18 @@ function resetHearingProcess() {
   showToast('初期状態にリセットしました');
 }
 
+// カウントダウン進行関数（小山くんがガイドセッションを開いている時だけ回る）
 function startHearingTimer() {
-  stopHearingTimer();
+  if (hearingTimerInterval) return; // 既に動作中なら重複して起動しない
   updateTimerUI();
 
   hearingTimerInterval = setInterval(() => {
     hearingRemainingSeconds--;
 
     if (hearingRemainingSeconds < 0) hearingRemainingSeconds = 0;
-    
-    if (userRole === 'admin' && db) {
+
+    // 残り時間をリアルタイム同期
+    if (db) {
       db.ref('hearing/live_state').update({ remainingSeconds: hearingRemainingSeconds });
     }
 
@@ -573,6 +589,8 @@ function updateTimerUI() {
 
 function finishHearingProcess() {
   stopHearingTimer();
+  isTimerActive = false;
+
   document.getElementById('hearing-admin-box').classList.add('hidden');
   document.getElementById('hearing-koyama-box').classList.add('hidden');
   document.getElementById('hearing-finish-box').classList.remove('hidden');
@@ -581,7 +599,10 @@ function finishHearingProcess() {
   if (footerCloseBtn) footerCloseBtn.classList.add('hidden');
 
   if (db) {
-    db.ref('hearing/live_state').update({ isFinished: true });
+    db.ref('hearing/live_state').update({
+      isFinished: true,
+      isTimerActive: false
+    });
   }
 }
 

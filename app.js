@@ -180,13 +180,14 @@ async function sendMemoToDiscord() {
 // ==========================================
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appstamp.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyB15Oycs-Kea3XpblJp-woQoigB3dfQKlg",
+  authDomain: "poco-app-a97ba.firebaseapp.com",
+  databaseURL: "https://poco-app-a97ba-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "poco-app-a97ba",
+  storageBucket: "poco-app-a97ba.firebasestorage.app",
+  messagingSenderId: "725824798305",
+  appId: "1:725824798305:web:cd6192c353dbac36baf420",
+  measurementId: "G-8ZPPCMDTQN"
 };
 
 if (!firebase.apps.length) {

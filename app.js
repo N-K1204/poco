@@ -12,6 +12,7 @@ let calendarEventsData = {};
 document.addEventListener('DOMContentLoaded', () => {
   renderButtons();
   listenMissionAndPoints();
+  listenUserInventory();
   try {
     init3DScene();
   } catch(e) {
@@ -224,7 +225,75 @@ try {
 }
 
 // ==========================================
-// ミッション ＆ 累計ポイントシステム（モーダル対応・カレンダー同期）
+// ポイントショップ ＆ もちもの機能
+// ==========================================
+
+function openShopModal() {
+  const overlay = document.getElementById('shop-overlay');
+  if (overlay) overlay.classList.add('active');
+}
+
+function closeShopModal() {
+  const overlay = document.getElementById('shop-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// ショップでアイテムを購入（ポイント消費・無制限）
+function buyShopItem(itemId, itemName, cost) {
+  if (userTotalPoints < cost) {
+    return showToast(`ポイントが足りません（必要: ${cost} PT）`);
+  }
+
+  const newPts = userTotalPoints - cost;
+
+  if (db) {
+    // 1. ポイント減算
+    db.ref('user/points').set(newPts);
+
+    // 2. 所持アイテムリストに新しく追加
+    db.ref('user/inventory').push({
+      itemId: itemId,
+      itemName: itemName,
+      cost: cost,
+      purchasedAt: new Date().toLocaleString()
+    });
+  } else {
+    userTotalPoints = newPts;
+    document.getElementById('user-points-display').innerText = userTotalPoints.toLocaleString();
+  }
+
+  showToast(`「${itemName}」と交換しました！`);
+}
+
+// 所持アイテム（もちもの）のリアルタイム監視・描画
+function listenUserInventory() {
+  if (!db) return;
+
+  db.ref('user/inventory').on('value', (snapshot) => {
+    const container = document.getElementById('inventory-list-container');
+    if (!container) return;
+
+    const data = snapshot.val();
+    if (!data) {
+      container.innerHTML = '<p class="no-events">まだ持っている券はありません</p>';
+      return;
+    }
+
+    const list = Object.values(data);
+    container.innerHTML = list.map(item => `
+      <div class="inventory-item-card">
+        <div class="inv-info">
+          <div class="inv-name">${item.itemName}</div>
+          <div class="inv-date">獲得日: ${item.purchasedAt || '最近'}</div>
+        </div>
+        <span class="inv-badge">所持中</span>
+      </div>
+    `).join('');
+  });
+}
+
+// ==========================================
+// ミッション ＆ 累計ポイントシステム
 // ==========================================
 
 let currentMissionData = {
@@ -312,12 +381,16 @@ function completeTodayMission() {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isMissionLog: true
     });
+  } else {
+    userTotalPoints = newTotalPts;
+    currentMissionData.isCompleted = true;
+    renderMissionUI();
+    document.getElementById('user-points-display').innerText = userTotalPoints.toLocaleString();
   }
 
   showToast(`おめでとう！ ${earnedPts} PT ゲット！`);
 }
 
-// ミッション専用設定モーダルからの送信
 function submitMissionFromModal() {
   const dateInput = document.getElementById('modal-mission-date');
   const titleInput = document.getElementById('modal-mission-title');
@@ -336,7 +409,6 @@ function submitMissionFromModal() {
   titleInput.value = '';
 }
 
-// DBおよびカレンダー・表への一括同期関数
 function saveMissionToDB(targetDateStr, title, points) {
   if (db) {
     db.ref(`mission/by_date/${targetDateStr}`).set({
@@ -353,11 +425,13 @@ function saveMissionToDB(targetDateStr, title, points) {
       isMissionLog: true,
       timestamp: Date.now()
     });
+  } else {
+    currentMissionData = { title: title, points: points, isCompleted: false };
+    renderMissionUI();
   }
-  showToast(`${targetDateStr} のミッションをカレンダーに共有しました`);
+  showToast(`${targetDateStr} のミッションを設定・共有しました`);
 }
 
-// 管理者画面からの送信
 function sendAdminMission() {
   const dateInput = document.getElementById('admin-mission-date');
   const titleInput = document.getElementById('admin-mission-input');
@@ -922,7 +996,7 @@ async function sendHearingLogToDiscord(qKey, answer) {
   }
 }
 
-// Toast 表示制御
+// Toast 表示制御 (1.8秒後のフェードアウト)
 let toastTimer = null;
 
 function showToast(msg) {

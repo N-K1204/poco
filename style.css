@@ -1,4 +1,4 @@
-/* Poco Pro - Style Sheet */
+/* Poco Pro - High-End Soft Design CSS */
 
 :root {
   --bg-main: #0a0b0e;
@@ -57,8 +57,9 @@ body {
   flex-direction: column;
 }
 
+/* Header */
 .app-header {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .brand-logo {
@@ -75,6 +76,254 @@ body {
   margin-top: 4px;
 }
 
+/* 今日のミッション＆ポイント表示カード */
+.mission-card-container {
+  background: linear-gradient(135deg, #1f232e 0%, #15171e 100%);
+  border: 1px solid #3d4253;
+  border-radius: var(--r-xl);
+  padding: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.mission-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mission-badge {
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.point-badge {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #ffffff;
+  background: #252834;
+  padding: 4px 12px;
+  border-radius: 16px;
+  border: 1px solid #4a5063;
+}
+
+.mission-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mission-title {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.35;
+}
+
+.mission-sub {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.btn-mission-complete {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  border-radius: var(--r-md);
+  margin-top: 4px;
+}
+
+/* 管理者画面のサブセクション */
+.admin-section-box {
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-section-title {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 4px 0;
+}
+
+/* カレンダー専用スタイル */
+.calendar-month-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.btn-icon {
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.month-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.calendar-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  position: relative;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+.calendar-day.today {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.calendar-day.selected {
+  background: #ffffff;
+  color: #0a0b0e;
+}
+
+.event-dot {
+  width: 5px;
+  height: 5px;
+  background: #3b82f6;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 4px;
+}
+
+.calendar-selected-info {
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.selected-date-title {
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.no-events {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px 0;
+}
+
+.event-item {
+  display: flex;
+  gap: 10px;
+  font-size: 0.85rem;
+  background: var(--bg-card);
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.event-item.mission-event {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.event-time {
+  font-weight: 900;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.event-title {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.add-event-box {
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-event-box h3 {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+
+/* ステップ切替 */
 .step-panel {
   display: none !important;
   flex-direction: column;
@@ -279,6 +528,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-height: 85vh;
+  overflow-y: auto;
   transform: translateY(100%);
   transition: transform 0.35s var(--ease-out-expo);
 }
@@ -309,6 +560,9 @@ body {
 }
 
 input[type="text"], 
+input[type="number"], 
+input[type="date"], 
+input[type="time"], 
 select.select-box, 
 textarea {
   width: 100%;
@@ -324,6 +578,9 @@ textarea {
 }
 
 input[type="text"]:focus, 
+input[type="number"]:focus, 
+input[type="date"]:focus, 
+input[type="time"]:focus, 
 select.select-box:focus, 
 textarea:focus {
   outline: none;

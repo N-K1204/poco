@@ -247,29 +247,6 @@ body {
   border-radius: 10px;
 }
 
-/* 管理者画面のサブセクション */
-.admin-section-box {
-  background: var(--bg-main);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.admin-section-title {
-  font-size: 0.85rem;
-  font-weight: 900;
-  color: var(--text-secondary);
-}
-
-.divider {
-  border: none;
-  border-top: 1px solid var(--border-subtle);
-  margin: 4px 0;
-}
-
 /* カレンダー専用スタイル */
 .calendar-month-nav {
   display: flex;
@@ -373,7 +350,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 120px;
+  max-height: 140px;
   overflow-y: auto;
 }
 
@@ -386,12 +363,20 @@ body {
 
 .event-item {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
   font-size: 0.85rem;
   background: var(--bg-card);
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: var(--r-sm);
   border: 1px solid var(--border-subtle);
+}
+
+.event-content-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  overflow: hidden;
 }
 
 .event-item.mission-event {
@@ -408,6 +393,24 @@ body {
 .event-title {
   font-weight: 700;
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-delete-event {
+  background: transparent;
+  border: none;
+  color: var(--btn-danger-bg);
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0 6px;
+  flex-shrink: 0;
+}
+
+.btn-delete-event:active {
+  opacity: 0.6;
 }
 
 .add-event-box {

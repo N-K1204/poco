@@ -156,6 +156,97 @@ body {
   flex: none;
 }
 
+/* ショップ＆もちものスタイル */
+.shop-section, .inventory-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-section-title {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+
+.shop-item-card {
+  background: var(--bg-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-name {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.item-cost {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.btn-buy {
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  flex: none;
+}
+
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.inventory-item-card {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inv-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inv-name {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.inv-date {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.inv-badge {
+  font-size: 0.75rem;
+  font-weight: 900;
+  background: #3b82f6;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
 /* 管理者画面のサブセクション */
 .admin-section-box {
   background: var(--bg-main);
@@ -982,7 +1073,7 @@ textarea {
   display: none !important;
 }
 
-/* Toast Notification */
+/* Toast Notification (自然なフェードアウト) */
 .toast {
   position: fixed;
   bottom: 32px;

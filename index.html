@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Poco</title>
+  <title>Poco Pro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
@@ -40,6 +40,17 @@
       </section>
 
       <main class="status-grid">
+        <!-- ポイントショップ ＆ もちものボタン -->
+        <button class="status-btn hero-btn" onclick="openShopModal()">
+          <div class="icon-box">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <div class="btn-text">
+            <span class="title">ポイントショップ ＆ もちもの</span>
+            <span class="sub">貯めたポイントでご褒美券と交換</span>
+          </div>
+        </button>
+
         <!-- 共有カレンダーボタン -->
         <button class="status-btn hero-btn" onclick="openCalendarModal()">
           <div class="icon-box">
@@ -58,7 +69,7 @@
           </div>
           <div class="btn-text">
             <span class="title">対話セッション（管理者）</span>
-            <span class="sub">リアルタイム質問の作成と進行</span>
+            <span class="sub">質問配信・ミッション作成</span>
           </div>
         </button>
 
@@ -172,6 +183,41 @@
 
   </div>
 
+  <!-- ショップ ＆ もちもの モーダル -->
+  <div id="shop-overlay" class="overlay" onclick="handleOverlayClick(event, 'shop-overlay')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2>ポイントショップ ＆ もちもの</h2>
+        <p>貯まったポイントでチケットと交換できます</p>
+      </div>
+
+      <!-- ポイント購入可能アイテム商品一覧 -->
+      <div class="shop-section">
+        <h3 class="shop-section-title">🎁 交換できるアイテム（在庫無限）</h3>
+        <div class="shop-item-card">
+          <div class="item-info">
+            <div class="item-name">夜ごはん決めれる券 🎫</div>
+            <div class="item-cost">必要: 100 PT</div>
+          </div>
+          <button class="btn btn-primary btn-buy" onclick="buyShopItem('dinner_ticket', '夜ごはん決めれる券', 100)">
+            100 PTで交換
+          </button>
+        </div>
+      </div>
+
+      <!-- 所持アイテム一覧 -->
+      <div class="inventory-section">
+        <h3 class="shop-section-title">🎒 あなたのもちもの</h3>
+        <div id="inventory-list-container" class="inventory-list">
+          <p class="no-events">まだ持っている券はありません</p>
+        </div>
+      </div>
+
+      <button class="btn-close-text" onclick="closeShopModal()">閉じる</button>
+    </div>
+  </div>
+
   <!-- ミッション専用設定モーダル -->
   <div id="mission-setting-overlay" class="overlay" onclick="handleOverlayClick(event, 'mission-setting-overlay')">
     <div class="sheet">
@@ -198,7 +244,7 @@
 
       <div class="editor-actions">
         <button class="btn btn-secondary" onclick="closeMissionModal()">キャンセル</button>
-        <button class="btn btn-primary" onclick="submitMissionFromModal()">ミッションを設定・カレンダー追加</button>
+        <button class="btn btn-primary" onclick="submitMissionFromModal()">設定して配信</button>
       </div>
     </div>
   </div>
@@ -253,7 +299,7 @@
         <div class="timer-value">
           <span id="timer-text">あと 3:00</span>
           <div id="timer-hourglass" class="hourglass-icon hidden">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 1-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
           </div>
         </div>
       </div>

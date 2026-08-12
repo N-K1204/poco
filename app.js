@@ -4,8 +4,14 @@ const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/153295324606103573
 
 let selectedButtonItem = null;
 
+// カレンダー用状態変数
+let currentCalendarDate = new Date();
+let selectedCalendarDateStr = formatDateKey(new Date());
+let calendarEventsData = {};
+
 document.addEventListener('DOMContentLoaded', () => {
   renderButtons();
+  listenMissionAndPoints();
   try {
     init3DScene();
   } catch(e) {
@@ -217,6 +223,258 @@ try {
   console.warn("Firebase initialization skipped or failed:", e);
 }
 
+// ==========================================
+// ミッション ＆ 累計ポイントシステム（日付指定＆カレンダー共有機能追加）
+// ==========================================
+
+let currentMissionData = {
+  title: "今日はお休み・準備中",
+  points: 0,
+  isCompleted: false
+};
+let userTotalPoints = 0;
+
+function listenMissionAndPoints() {
+  if (!db) return;
+
+  const todayStr = formatDateKey(new Date());
+
+  // 日付指定ミッション同期（今日の日付のミッションを取得）
+  db.ref(`mission/by_date/${todayStr}`).on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      currentMissionData = data;
+      renderMissionUI();
+    } else {
+      document.getElementById('today-mission-title').innerText = "今日のミッションはまだありません";
+      document.getElementById('today-mission-points-label').innerText = "管理者からの配信をお待ちください";
+      document.getElementById('mission-complete-btn').style.display = "none";
+    }
+  });
+
+  // ユーザー累計ポイント同期
+  db.ref('user/points').on('value', (snapshot) => {
+    const pts = snapshot.val();
+    userTotalPoints = pts || 0;
+    document.getElementById('user-points-display').innerText = userTotalPoints.toLocaleString();
+  });
+}
+
+function renderMissionUI() {
+  const titleEl = document.getElementById('today-mission-title');
+  const pointsLabelEl = document.getElementById('today-mission-points-label');
+  const completeBtn = document.getElementById('mission-complete-btn');
+
+  if (!titleEl || !pointsLabelEl || !completeBtn) return;
+
+  titleEl.innerText = currentMissionData.title || "今日のミッションはまだありません";
+  pointsLabelEl.innerText = `獲得報酬: +${currentMissionData.points || 0} PT`;
+
+  if (currentMissionData.isCompleted) {
+    completeBtn.innerText = "達成済み！";
+    completeBtn.disabled = true;
+    completeBtn.style.opacity = "0.5";
+    completeBtn.style.display = "block";
+  } else {
+    completeBtn.innerText = "ミッション達成！";
+    completeBtn.disabled = false;
+    completeBtn.style.opacity = "1";
+    completeBtn.style.display = "block";
+  }
+}
+
+// 小山くんがミッションを達成した時の処理
+function completeTodayMission() {
+  if (currentMissionData.isCompleted) return;
+
+  const earnedPts = parseInt(currentMissionData.points, 10) || 0;
+  const newTotalPts = userTotalPoints + earnedPts;
+  const todayStr = formatDateKey(new Date());
+
+  if (db) {
+    // 日付別ミッションの達成フラグ更新
+    db.ref(`mission/by_date/${todayStr}`).update({ isCompleted: true });
+    // ポイント累計加算
+    db.ref('user/points').set(newTotalPts);
+    // カレンダーの予定一覧（表）に達成ログを追加
+    db.ref(`calendar/events/${todayStr}`).push({
+      title: `【ミッション達成】${currentMissionData.title} (+${earnedPts}PT)`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isMissionLog: true
+    });
+  }
+
+  showToast(`おめでとう！ ${earnedPts} PT ゲット！`);
+}
+
+// 【管理者】ミッションの設定（日付指定＋カレンダー・表への自動共有）
+function sendAdminMission() {
+  const targetDateInput = document.getElementById('admin-mission-date');
+  const mTitle = document.getElementById('admin-mission-input').value.trim();
+  const mPoints = parseInt(document.getElementById('admin-mission-points').value, 10) || 50;
+
+  if (!mTitle) return showToast('ミッション内容を入力してください');
+
+  // 日付が未選択の場合は今日の日付を設定
+  let targetDateStr = targetDateInput ? targetDateInput.value : '';
+  if (!targetDateStr) {
+    targetDateStr = formatDateKey(new Date());
+  }
+
+  if (db) {
+    // 1. 日付別ミッションDBに更新保存
+    db.ref(`mission/by_date/${targetDateStr}`).set({
+      date: targetDateStr,
+      title: mTitle,
+      points: mPoints,
+      isCompleted: false,
+      timestamp: Date.now()
+    });
+
+    // 2. カレンダー・表に同時共有（新規予定として登録）
+    db.ref(`calendar/events/${targetDateStr}`).push({
+      title: `🎯 【ミッション】${mTitle} (+${mPoints}PT)`,
+      time: '終日',
+      isMissionLog: true,
+      timestamp: Date.now()
+    });
+  }
+
+  showToast(`${targetDateStr} のミッションをカレンダーに設定・共有しました`);
+  document.getElementById('admin-mission-input').value = '';
+}
+
+// ==========================================
+// 共有カレンダー機能
+// ==========================================
+
+function openCalendarModal() {
+  document.getElementById('calendar-overlay').classList.add('active');
+  renderCalendar();
+  listenCalendarEvents();
+}
+
+function closeCalendarModal() {
+  document.getElementById('calendar-overlay').classList.remove('active');
+}
+
+function changeCalendarMonth(delta) {
+  currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+
+  const label = document.getElementById('calendar-month-label');
+  if (label) label.innerText = `${year}年 ${month + 1}月`;
+
+  const daysGrid = document.getElementById('calendar-days-grid');
+  if (!daysGrid) return;
+  daysGrid.innerHTML = '';
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.className = 'calendar-day empty';
+    daysGrid.appendChild(emptyCell);
+  }
+
+  const todayStr = formatDateKey(new Date());
+
+  for (let d = 1; d <= lastDate; d++) {
+    const dateObj = new Date(year, month, d);
+    const dateStr = formatDateKey(dateObj);
+
+    const dayCell = document.createElement('div');
+    dayCell.className = 'calendar-day';
+    if (dateStr === todayStr) dayCell.classList.add('today');
+    if (dateStr === selectedCalendarDateStr) dayCell.classList.add('selected');
+
+    dayCell.innerText = d;
+
+    if (calendarEventsData[dateStr]) {
+      const dot = document.createElement('span');
+      dot.className = 'event-dot';
+      dayCell.appendChild(dot);
+    }
+
+    dayCell.onclick = () => {
+      selectedCalendarDateStr = dateStr;
+      renderCalendar();
+      renderSelectedDateEvents();
+    };
+
+    daysGrid.appendChild(dayCell);
+  }
+
+  renderSelectedDateEvents();
+}
+
+function listenCalendarEvents() {
+  if (!db) return;
+  db.ref('calendar/events').on('value', (snapshot) => {
+    calendarEventsData = snapshot.val() || {};
+    renderCalendar();
+  });
+}
+
+// 選択日の予定・ミッション一覧（表）を描画
+function renderSelectedDateEvents() {
+  const label = document.getElementById('selected-date-label');
+  const container = document.getElementById('selected-date-events');
+  if (!label || !container) return;
+
+  label.innerText = `${selectedCalendarDateStr} の予定・ミッション一覧`;
+
+  const dayData = calendarEventsData[selectedCalendarDateStr];
+  if (!dayData) {
+    container.innerHTML = '<p class="no-events">予定・ミッションはありません</p>';
+    return;
+  }
+
+  const list = Object.values(dayData);
+  container.innerHTML = list.map(ev => `
+    <div class="event-item ${ev.isMissionLog ? 'mission-event' : ''}">
+      <span class="event-time">${ev.time || '終日'}</span>
+      <span class="event-title">${ev.title}</span>
+    </div>
+  `).join('');
+}
+
+function submitCalendarEvent() {
+  const titleInput = document.getElementById('event-title-input');
+  const timeInput = document.getElementById('event-time-input');
+
+  const title = titleInput.value.trim();
+  const time = timeInput.value.trim();
+
+  if (!title) return showToast('予定のタイトルを入力してください');
+
+  if (db) {
+    db.ref(`calendar/events/${selectedCalendarDateStr}`).push({
+      title: title,
+      time: time || '終日',
+      isMissionLog: false,
+      timestamp: Date.now()
+    });
+  }
+
+  showToast('カレンダーに共有追加しました');
+  titleInput.value = '';
+  timeInput.value = '';
+}
+
+function formatDateKey(dateObj) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 // --- しりとり ---
 function openShiritoriModal() {
   document.getElementById('shiritori-overlay').classList.add('active');
@@ -317,13 +575,13 @@ function executeShiritoriReset() {
 }
 
 // ==========================================
-// 5W1H リアルタイム対話セッション（質問後スタート＆小山くん閲覧時のみ進行）
+// 5W1H リアルタイム対話セッション
 // ==========================================
 
 let userRole = 'koyama';
 let hearingTimerInterval = null;
 let hearingRemainingSeconds = 180;
-let isTimerActive = false; // タイマーが起動状態かどうか
+let isTimerActive = false;
 
 function openHearingModal(role) {
   userRole = role;
@@ -333,9 +591,15 @@ function openHearingModal(role) {
   const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
   if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
 
+  // 管理者モードの開いた際にミッション日付入力欄のデフォルトを「今日」に設定
   if (role === 'admin') {
     document.getElementById('hearing-admin-box').classList.remove('hidden');
     document.getElementById('hearing-koyama-box').classList.add('hidden');
+
+    const dateInput = document.getElementById('admin-mission-date');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = formatDateKey(new Date());
+    }
   } else {
     document.getElementById('hearing-admin-box').classList.add('hidden');
     document.getElementById('hearing-koyama-box').classList.remove('hidden');
@@ -345,13 +609,16 @@ function openHearingModal(role) {
 }
 
 function closeHearingModal() {
-  // モーダルを閉じた時はタイマー進行を一時停止する
   stopHearingTimer();
   document.getElementById('hearing-overlay').classList.remove('active');
 }
 
 function listenHearingSync() {
-  if (!db) return;
+  if (!db) {
+    if (isTimerActive) startHearingTimer();
+    return;
+  }
+
   const hearingStateRef = db.ref('hearing/live_state');
   hearingStateRef.off();
   hearingStateRef.on('value', (snapshot) => {
@@ -369,10 +636,9 @@ function listenHearingSync() {
       isTimerActive = data.isTimerActive;
     }
 
-    // 小山くんがガイドセッションを開いていて、かつタイマーが起動済みであればカウントダウン開始
     if (userRole === 'koyama' && isTimerActive && !data.isFinished) {
       startHearingTimer();
-    } else {
+    } else if (userRole !== 'admin') {
       stopHearingTimer();
     }
 
@@ -412,7 +678,6 @@ function listenHearingSync() {
   });
 }
 
-// 【管理者】質問配信（ここでタイマーフラグをアクティブ化）
 function sendAdminQuestion() {
   const qText = document.getElementById('admin-question-input').value.trim();
   if (!qText) return showToast('質問を入力してください');
@@ -421,6 +686,7 @@ function sendAdminQuestion() {
 
   hearingRemainingSeconds = selectedSeconds;
   isTimerActive = true;
+  startHearingTimer();
 
   if (db) {
     db.ref('hearing/live_state').update({
@@ -537,18 +803,16 @@ function resetHearingProcess() {
   showToast('初期状態にリセットしました');
 }
 
-// カウントダウン進行関数（小山くんがガイドセッションを開いている時だけ回る）
 function startHearingTimer() {
-  if (hearingTimerInterval) return; // 既に動作中なら重複して起動しない
+  if (hearingTimerInterval) return;
   updateTimerUI();
 
   hearingTimerInterval = setInterval(() => {
     hearingRemainingSeconds--;
 
     if (hearingRemainingSeconds < 0) hearingRemainingSeconds = 0;
-
-    // 残り時間をリアルタイム同期
-    if (db) {
+    
+    if (userRole === 'admin' && db) {
       db.ref('hearing/live_state').update({ remainingSeconds: hearingRemainingSeconds });
     }
 

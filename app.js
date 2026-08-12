@@ -238,7 +238,6 @@ function closeShopModal() {
   if (overlay) overlay.classList.remove('active');
 }
 
-// ショップでアイテムを購入（ポイント消費・無制限）
 function buyShopItem(itemId, itemName, cost) {
   if (userTotalPoints < cost) {
     return showToast(`ポイントが足りません（必要: ${cost} PT）`);
@@ -247,10 +246,7 @@ function buyShopItem(itemId, itemName, cost) {
   const newPts = userTotalPoints - cost;
 
   if (db) {
-    // 1. ポイント減算
     db.ref('user/points').set(newPts);
-
-    // 2. 所持アイテムリストに新しく追加
     db.ref('user/inventory').push({
       itemId: itemId,
       itemName: itemName,
@@ -265,7 +261,6 @@ function buyShopItem(itemId, itemName, cost) {
   showToast(`「${itemName}」と交換しました！`);
 }
 
-// 所持アイテム（もちもの）のリアルタイム監視・描画
 function listenUserInventory() {
   if (!db) return;
 
@@ -450,7 +445,7 @@ function sendAdminMission() {
 }
 
 // ==========================================
-// 共有カレンダー機能
+// 共有カレンダー機能（予定追加 ＆ 自由削除対応）
 // ==========================================
 
 function openCalendarModal() {
@@ -501,7 +496,7 @@ function renderCalendar() {
 
     dayCell.innerText = d;
 
-    if (calendarEventsData[dateStr]) {
+    if (calendarEventsData[dateStr] && Object.keys(calendarEventsData[dateStr]).length > 0) {
       const dot = document.createElement('span');
       dot.className = 'event-dot';
       dayCell.appendChild(dot);
@@ -535,18 +530,39 @@ function renderSelectedDateEvents() {
   label.innerText = `${selectedCalendarDateStr} の予定・ミッション一覧`;
 
   const dayData = calendarEventsData[selectedCalendarDateStr];
-  if (!dayData) {
+  if (!dayData || Object.keys(dayData).length === 0) {
     container.innerHTML = '<p class="no-events">予定・ミッションはありません</p>';
     return;
   }
 
-  const list = Object.values(dayData);
-  container.innerHTML = list.map(ev => `
+  // キー値（FirebaseのPush ID）を元に削除ボタン付きで出力
+  const entries = Object.entries(dayData);
+  container.innerHTML = entries.map(([key, ev]) => `
     <div class="event-item ${ev.isMissionLog ? 'mission-event' : ''}">
-      <span class="event-time">${ev.time || '終日'}</span>
-      <span class="event-title">${ev.title}</span>
+      <div class="event-content-group">
+        <span class="event-time">${ev.time || '終日'}</span>
+        <span class="event-title">${ev.title}</span>
+      </div>
+      <button class="btn-delete-event" onclick="deleteCalendarEvent('${selectedCalendarDateStr}', '${key}')" title="削除">
+        ✕
+      </button>
     </div>
   `).join('');
+}
+
+// 予定・ミッションの削除実行
+function deleteCalendarEvent(dateStr, eventKey) {
+  if (db) {
+    db.ref(`calendar/events/${dateStr}/${eventKey}`).remove().then(() => {
+      showToast('予定を削除しました');
+    });
+  } else {
+    if (calendarEventsData[dateStr] && calendarEventsData[dateStr][eventKey]) {
+      delete calendarEventsData[dateStr][eventKey];
+      renderCalendar();
+      showToast('予定を削除しました');
+    }
+  }
 }
 
 function submitCalendarEvent() {
@@ -996,7 +1012,7 @@ async function sendHearingLogToDiscord(qKey, answer) {
   }
 }
 
-// Toast 表示制御 (1.8秒後のフェードアウト)
+// Toast 表示制御
 let toastTimer = null;
 
 function showToast(msg) {

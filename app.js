@@ -224,7 +224,7 @@ try {
 }
 
 // ==========================================
-// ミッション ＆ 累計ポイントシステム（日付指定＆カレンダー共有機能追加）
+// ミッション ＆ 累計ポイントシステム（モーダル対応・カレンダー同期）
 // ==========================================
 
 let currentMissionData = {
@@ -234,12 +234,27 @@ let currentMissionData = {
 };
 let userTotalPoints = 0;
 
+function openMissionModal() {
+  const modal = document.getElementById('mission-setting-overlay');
+  if (modal) {
+    modal.classList.add('active');
+    const dateInput = document.getElementById('modal-mission-date');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = formatDateKey(new Date());
+    }
+  }
+}
+
+function closeMissionModal() {
+  const modal = document.getElementById('mission-setting-overlay');
+  if (modal) modal.classList.remove('active');
+}
+
 function listenMissionAndPoints() {
   if (!db) return;
 
   const todayStr = formatDateKey(new Date());
 
-  // 日付指定ミッション同期（今日の日付のミッションを取得）
   db.ref(`mission/by_date/${todayStr}`).on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -252,7 +267,6 @@ function listenMissionAndPoints() {
     }
   });
 
-  // ユーザー累計ポイント同期
   db.ref('user/points').on('value', (snapshot) => {
     const pts = snapshot.val();
     userTotalPoints = pts || 0;
@@ -276,14 +290,13 @@ function renderMissionUI() {
     completeBtn.style.opacity = "0.5";
     completeBtn.style.display = "block";
   } else {
-    completeBtn.innerText = "ミッション達成！";
+    completeBtn.innerText = "ミッション達成！ポイントGET";
     completeBtn.disabled = false;
     completeBtn.style.opacity = "1";
     completeBtn.style.display = "block";
   }
 }
 
-// 小山くんがミッションを達成した時の処理
 function completeTodayMission() {
   if (currentMissionData.isCompleted) return;
 
@@ -292,11 +305,8 @@ function completeTodayMission() {
   const todayStr = formatDateKey(new Date());
 
   if (db) {
-    // 日付別ミッションの達成フラグ更新
     db.ref(`mission/by_date/${todayStr}`).update({ isCompleted: true });
-    // ポイント累計加算
     db.ref('user/points').set(newTotalPts);
-    // カレンダーの予定一覧（表）に達成ログを追加
     db.ref(`calendar/events/${todayStr}`).push({
       title: `【ミッション達成】${currentMissionData.title} (+${earnedPts}PT)`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -307,41 +317,62 @@ function completeTodayMission() {
   showToast(`おめでとう！ ${earnedPts} PT ゲット！`);
 }
 
-// 【管理者】ミッションの設定（日付指定＋カレンダー・表への自動共有）
-function sendAdminMission() {
-  const targetDateInput = document.getElementById('admin-mission-date');
-  const mTitle = document.getElementById('admin-mission-input').value.trim();
-  const mPoints = parseInt(document.getElementById('admin-mission-points').value, 10) || 50;
+// ミッション専用設定モーダルからの送信
+function submitMissionFromModal() {
+  const dateInput = document.getElementById('modal-mission-date');
+  const titleInput = document.getElementById('modal-mission-title');
+  const pointsInput = document.getElementById('modal-mission-points');
+
+  let targetDateStr = dateInput ? dateInput.value : '';
+  if (!targetDateStr) targetDateStr = formatDateKey(new Date());
+
+  const mTitle = titleInput.value.trim();
+  const mPoints = parseInt(pointsInput.value, 10) || 50;
 
   if (!mTitle) return showToast('ミッション内容を入力してください');
 
-  // 日付が未選択の場合は今日の日付を設定
-  let targetDateStr = targetDateInput ? targetDateInput.value : '';
-  if (!targetDateStr) {
-    targetDateStr = formatDateKey(new Date());
-  }
+  saveMissionToDB(targetDateStr, mTitle, mPoints);
+  closeMissionModal();
+  titleInput.value = '';
+}
 
+// DBおよびカレンダー・表への一括同期関数
+function saveMissionToDB(targetDateStr, title, points) {
   if (db) {
-    // 1. 日付別ミッションDBに更新保存
     db.ref(`mission/by_date/${targetDateStr}`).set({
       date: targetDateStr,
-      title: mTitle,
-      points: mPoints,
+      title: title,
+      points: points,
       isCompleted: false,
       timestamp: Date.now()
     });
 
-    // 2. カレンダー・表に同時共有（新規予定として登録）
     db.ref(`calendar/events/${targetDateStr}`).push({
-      title: `🎯 【ミッション】${mTitle} (+${mPoints}PT)`,
+      title: `🎯 【ミッション】${title} (+${points}PT)`,
       time: '終日',
       isMissionLog: true,
       timestamp: Date.now()
     });
   }
+  showToast(`${targetDateStr} のミッションをカレンダーに共有しました`);
+}
 
-  showToast(`${targetDateStr} のミッションをカレンダーに設定・共有しました`);
-  document.getElementById('admin-mission-input').value = '';
+// 管理者画面からの送信
+function sendAdminMission() {
+  const dateInput = document.getElementById('admin-mission-date');
+  const titleInput = document.getElementById('admin-mission-input');
+  const pointsInput = document.getElementById('admin-mission-points');
+
+  let targetDateStr = dateInput ? dateInput.value : '';
+  if (!targetDateStr) targetDateStr = formatDateKey(new Date());
+
+  const mTitle = titleInput.value.trim();
+  const mPoints = parseInt(pointsInput.value, 10) || 50;
+
+  if (!mTitle) return showToast('ミッション内容を入力してください');
+
+  saveMissionToDB(targetDateStr, mTitle, mPoints);
+  titleInput.value = '';
 }
 
 // ==========================================
@@ -422,7 +453,6 @@ function listenCalendarEvents() {
   });
 }
 
-// 選択日の予定・ミッション一覧（表）を描画
 function renderSelectedDateEvents() {
   const label = document.getElementById('selected-date-label');
   const container = document.getElementById('selected-date-events');
@@ -591,7 +621,6 @@ function openHearingModal(role) {
   const footerCloseBtn = document.getElementById('hearing-footer-close-btn');
   if (footerCloseBtn) footerCloseBtn.classList.remove('hidden');
 
-  // 管理者モードの開いた際にミッション日付入力欄のデフォルトを「今日」に設定
   if (role === 'admin') {
     document.getElementById('hearing-admin-box').classList.remove('hidden');
     document.getElementById('hearing-koyama-box').classList.add('hidden');
@@ -811,7 +840,7 @@ function startHearingTimer() {
     hearingRemainingSeconds--;
 
     if (hearingRemainingSeconds < 0) hearingRemainingSeconds = 0;
-    
+
     if (userRole === 'admin' && db) {
       db.ref('hearing/live_state').update({ remainingSeconds: hearingRemainingSeconds });
     }
@@ -893,7 +922,7 @@ async function sendHearingLogToDiscord(qKey, answer) {
   }
 }
 
-// Toast 表示制御 (1.8秒後のフェードアウト)
+// Toast 表示制御
 let toastTimer = null;
 
 function showToast(msg) {

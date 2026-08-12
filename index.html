@@ -29,9 +29,14 @@
           <h2 id="today-mission-title" class="mission-title">（今日のミッションを読み込み中...）</h2>
           <p id="today-mission-points-label" class="mission-sub">達成報酬: +0 PT</p>
         </div>
-        <button id="mission-complete-btn" class="btn btn-primary btn-mission-complete" onclick="completeTodayMission()">
-          ミッション達成！
-        </button>
+        <div class="mission-action-group">
+          <button id="mission-complete-btn" class="btn btn-primary btn-mission-complete" onclick="completeTodayMission()">
+            ミッション達成！ポイントGET
+          </button>
+          <button class="btn btn-secondary btn-sm-setting" onclick="openMissionModal()">
+            ⚙️ ミッション設定
+          </button>
+        </div>
       </section>
 
       <main class="status-grid">
@@ -53,7 +58,7 @@
           </div>
           <div class="btn-text">
             <span class="title">対話セッション（管理者）</span>
-            <span class="sub">質問配信・ミッション作成</span>
+            <span class="sub">リアルタイム質問の作成と進行</span>
           </div>
         </button>
 
@@ -167,6 +172,37 @@
 
   </div>
 
+  <!-- ミッション専用設定モーダル -->
+  <div id="mission-setting-overlay" class="overlay" onclick="handleOverlayClick(event, 'mission-setting-overlay')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h2>ミッションの設定</h2>
+        <p>日付を指定してミッションと報酬ポイントを設定します</p>
+      </div>
+
+      <div class="input-group">
+        <label for="modal-mission-date">対象の日付</label>
+        <input type="date" id="modal-mission-date" />
+      </div>
+
+      <div class="input-group">
+        <label for="modal-mission-title">ミッション内容</label>
+        <input type="text" id="modal-mission-title" placeholder="例：部屋の片付けをする、10分散歩する" />
+      </div>
+
+      <div class="input-group">
+        <label for="modal-mission-points">獲得ポイント</label>
+        <input type="number" id="modal-mission-points" value="50" placeholder="50" />
+      </div>
+
+      <div class="editor-actions">
+        <button class="btn btn-secondary" onclick="closeMissionModal()">キャンセル</button>
+        <button class="btn btn-primary" onclick="submitMissionFromModal()">ミッションを設定・カレンダー追加</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 共有カレンダー モーダル -->
   <div id="calendar-overlay" class="overlay" onclick="handleOverlayClick(event, 'calendar-overlay')">
     <div class="sheet calendar-sheet">
@@ -176,26 +212,22 @@
         <p>予定の共有とミッション一覧</p>
       </div>
 
-      <!-- カレンダーナビゲーション -->
       <div class="calendar-month-nav">
         <button class="btn-icon" onclick="changeCalendarMonth(-1)">◀</button>
         <span id="calendar-month-label" class="month-title">2026年 8月</span>
         <button class="btn-icon" onclick="changeCalendarMonth(1)">▶</button>
       </div>
 
-      <!-- カレンダーグリッド -->
       <div class="calendar-grid-header">
         <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
       </div>
       <div id="calendar-days-grid" class="calendar-days-grid"></div>
 
-      <!-- 選択日のイベント＆ミッション詳細表 -->
       <div class="calendar-selected-info">
         <h3 id="selected-date-label" class="selected-date-title">選択日の予定・ミッション</h3>
         <div id="selected-date-events" class="events-list"></div>
       </div>
 
-      <!-- 予定追加フォーム -->
       <div class="add-event-box">
         <h3>新しい予定を追加</h3>
         <div class="input-group">
@@ -211,7 +243,7 @@
     </div>
   </div>
 
-  <!-- 対話セッション モーダル（管理者用ミッション設定に日付選択を追加） -->
+  <!-- 対話セッション モーダル -->
   <div id="hearing-overlay" class="overlay" onclick="handleOverlayClick(event, 'hearing-overlay')">
     <div class="sheet hearing-sheet">
       <div class="sheet-handle"></div>
@@ -221,7 +253,7 @@
         <div class="timer-value">
           <span id="timer-text">あと 3:00</span>
           <div id="timer-hourglass" class="hourglass-icon hidden">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 1-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
           </div>
         </div>
       </div>
@@ -229,27 +261,7 @@
       <!-- 管理者用画面 -->
       <div id="hearing-admin-box" class="hearing-body hidden">
         <div class="hearing-q-tag">ADMIN CONTROL</div>
-        <h2 class="hearing-q-title">質問配信・ミッション設定</h2>
-
-        <!-- ミッション設定エリア (日付入力機能追加) -->
-        <div class="admin-section-box">
-          <div class="admin-section-title">【小山くんのミッション設定】</div>
-          <div class="input-group">
-            <label for="admin-mission-date">対象の日付</label>
-            <input type="date" id="admin-mission-date" />
-          </div>
-          <div class="input-group">
-            <label for="admin-mission-input">ミッション内容</label>
-            <input type="text" id="admin-mission-input" placeholder="例：お部屋の片付けをする" />
-          </div>
-          <div class="input-group">
-            <label for="admin-mission-points">獲得ポイント</label>
-            <input type="number" id="admin-mission-points" placeholder="50" value="50" />
-          </div>
-          <button class="btn btn-primary" onclick="sendAdminMission()">ミッションを設定・カレンダー同期</button>
-        </div>
-
-        <hr class="divider" />
+        <h2 class="hearing-q-title">質問配信・時間設定</h2>
 
         <div class="input-group">
           <label for="admin-timer-select">対話の制限時間</label>

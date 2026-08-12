@@ -135,13 +135,25 @@ body {
   color: #3b82f6;
 }
 
+.mission-action-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .btn-mission-complete {
-  width: 100%;
+  flex: 1;
   padding: 12px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 900;
   border-radius: var(--r-md);
-  margin-top: 4px;
+}
+
+.btn-sm-setting {
+  padding: 0 14px;
+  height: 44px;
+  font-size: 0.8rem;
+  flex: none;
 }
 
 /* 管理者画面のサブセクション */
@@ -970,7 +982,7 @@ textarea {
   display: none !important;
 }
 
-/* Toast Notification (自然なフェードアウト) */
+/* Toast Notification */
 .toast {
   position: fixed;
   bottom: 32px;
